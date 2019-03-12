@@ -44,4 +44,4 @@ This project is licensed under the BSD License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* This project uses code from ROS tutorial und MeveIt
+* This project uses code from ROS tutorial und MoveIt

@@ -1,0 +1,9 @@
+<launch>
+
+    <!-- Launch Pico Flexx driver -->
+    <include file="$(find edge_detection_pmd)/launch/pico_flexx_driver.launch"/>
+
+    <!-- Launch cut -->
+    <node name="packet_cut" pkg="ur_cut" type="Distance_search.py" output="screen"/>
+
+</launch>
