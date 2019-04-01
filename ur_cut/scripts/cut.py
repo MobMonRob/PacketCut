@@ -63,6 +63,7 @@ import edge_detection_pmd.msg
 from pyquaternion import *
 from geometry_msgs.msg import Vector3
 import socket
+import threading
 ## END_SUB_TUTORIAL
 
 def all_close(goal, actual, tolerance):
@@ -116,19 +117,22 @@ class MoveGroupPythonInteface(object):
     display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
                                                 moveit_msgs.msg.DisplayTrajectory,
                                                 queue_size=20)
+
+    threadForce = threading.Thread(target=self.getForce)
+
     ## Getting Basic Information
     ## ^^^^^^^^^^^^^^^^^^^^^^^^^
     # We can get the name of the reference frame for this robot:
     planning_frame = group.get_planning_frame()
-    print "============ Reference frame: %s" % planning_frame
+    #print "============ Reference frame: %s" % planning_frame
 
     # We can also print the name of the end-effector link for this group:
     eef_link = group.get_end_effector_link()
-    print "============ End effector: %s" % eef_link
+    #print "============ End effector: %s" % eef_link
 
     # We can get a list of all the groups in the robot:
     group_names = robot.get_group_names()
-    print "============ Robot Groups:", robot.get_group_names()
+    #print "============ Robot Groups:", robot.get_group_names()
 
     # Sometimes for debugging it is useful to print the entire state of the
     # robot:
@@ -137,11 +141,8 @@ class MoveGroupPythonInteface(object):
     print ""
     ## END_SUB_TUTORIAL
 
-    host = "192.168.3.2"    # The remote host
-    port = 63351            # The same port as used by the server
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((HOST, PORT))
-
+    force = False
+    threadStop = False
     # Misc variables
     self.box_name = ''
     self.robot = robot
@@ -151,36 +152,84 @@ class MoveGroupPythonInteface(object):
     self.planning_frame = planning_frame
     self.eef_link = eef_link
     self.group_names = group_names
+    self.threadForce = threadForce
+    self.threadStop = threadStop
+
 
   def getForce(self):
-    data = s.recv(128)
-    data = data.split('\'')
-    fx = float(data[1])
-    fy = float(data[3])
-    fz = float(data[5])
-    mx = float(data[7])
-    my = float(data[9])
-    mz = float(data[11])
+    # Socket wird jedes mal neu geoeffnet und geschlossen, um sauberen Stream zu erhalten
+    getValue = False
+    while getValue != True or threadStop != True:
+      host = "192.168.3.2"    # The remote host
+      port = 63351            # The same port as used by the server
+      sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      sock.connect((host, port))
+      data = sock.recv(128)
+      sock.close()
+      
+      #print(data)
+      data = data[1:-1]
+      #print(data)
+      data = data.split()
+      #print(data)
+      fx = float(data[0])
+      fy = float(data[2])
+      fz = float(data[4])
+      mx = float(data[6])
+      my = float(data[8])
+      mz = float(data[10])
+      print(fz)
+      if fz <=80:
+        print("Barriere erkannt")
+        self.group.stop()
+        getValue =  True
+        pass
+      pass
+    
 
     
   def startPosition(self):
 
     group = self.group
+
+    waypoints = []
+
+    wpose = group.get_current_pose().pose
+    wpose.position.x = -0.3
+    wpose.position.y = 0.5
+    wpose.position.z = 0.5
     
-    pose_goal = geometry_msgs.msg.Pose()
+    wpose.orientation.x = 0.0
+    wpose.orientation.y = 0.0
+    wpose.orientation.z = 0.707
+    wpose.orientation.w = 0.707
+
+    waypoints.append(copy.deepcopy(wpose))
+    # We want the Cartesian path to be interpolated at a resolution of 1 cm
+    # which is why we will specify 0.01 as the eef_step in Cartesian
+    # translation.  We will disable the jump threshold by setting it to 0.0 disabling:
+    (plan, fraction) = group.compute_cartesian_path(
+                                    waypoints,   # waypoints to follow
+                                    0.1,        # eef_step
+                                    0.0)         # jump_threshold
     
-    pose_goal.orientation.x = 0.0
-    pose_goal.orientation.y = 0.0
-    pose_goal.orientation.z = 0.707
-    pose_goal.orientation.w = 0.707
+    raw_input()
+
+    self.execute_plan(plan)
+    # pose_goal = geometry_msgs.msg.Pose()
+    
+    # pose_goal.orientation.x = 0.0
+    # pose_goal.orientation.y = 0.0
+    # pose_goal.orientation.z = 0.707
+    # pose_goal.orientation.w = 0.707
   
-    pose_goal.position.x = -0.3
-    pose_goal.position.y = 0.5
-    pose_goal.position.z = 0.5
-    group.set_pose_target(pose_goal)
+    # pose_goal.position.x = -0.3
+    # pose_goal.position.y = 0.5
+    # pose_goal.position.z = 0.5
+    # group.set_pose_target(pose_goal)
 
     ## Now, we call the planner to compute the plan and execute it.
-    plan = group.go(wait=True)
+    #plan = group.go(wait=True)
     # Calling `stop()` ensures that there is no residual movement
     group.stop()
     # It is always good to clear your targets after planning with poses.
@@ -193,7 +242,7 @@ class MoveGroupPythonInteface(object):
     # Note that since this section of code will not be included in the tutorials
     # we use the class variable rather than the copied state variable
     current_pose = self.group.get_current_pose().pose
-    return all_close(pose_goal, current_pose, 0.01)
+    return all_close(wpose, current_pose, 0.01)
 
   # def move_in_steps(x,y,z):
   #   for
@@ -201,11 +250,18 @@ class MoveGroupPythonInteface(object):
   #     position+1
   #     go
 
-  def go_to_pose_goal_relative(self, posX = None, posY = None, posZ = None, steps = 1):
+  def go_to_pose_goal(self, posX = None, posY = None, posZ = None, force = False):
     # Copy class variables to local variables to make the web tutorials more clear.
     # In practice, you should use the class variables directly unless you have a good
     # reason not to.
     group = self.group
+    
+    if force == True:
+      threadForce.start()
+      pass
+
+    #steps = int(abs((posX + posY + posZ)*100))
+    steps=1
 
     ## BEGIN_SUB_TUTORIAL plan_to_pose
     ##
@@ -217,24 +273,25 @@ class MoveGroupPythonInteface(object):
     pose_goal = group.get_current_pose().pose
 
     for i in range(steps):
+      # if self.barrier == 1:
+      #   break
+      #   pass
       pose_goal.position.x += (posX/steps)
-
-
+      pose_goal.position.y += (posY/steps)
+      pose_goal.position.z += (posZ/steps)
       group.set_pose_target(pose_goal)
       ## Now, we call the planner to compute the plan and execute it.
-      plan = group.go(wait=True)
-
+      group.go(wait=True)
+      # if force == True:
+      #   self.getForce()
+      #   pass
       pass
-
-    # pose_goal.position.x += posX
-    # pose_goal.position.y += posY
-    # pose_goal.position.z += posZ
-    # group.set_pose_target(pose_goal)
 
     ## Now, we call the planner to compute the plan and execute it.
     # plan = group.go(wait=True)
     # Calling `stop()` ensures that there is no residual movement
     group.stop()
+    self.threadStop = True
     # It is always good to clear your targets after planning with poses.
     # Note: there is no equivalent function for clear_joint_value_targets()
     group.clear_pose_targets()
@@ -266,31 +323,32 @@ class MoveGroupPythonInteface(object):
     wpose = group.get_current_pose().pose
     print(wpose.position.x)
     for i in range(40):
+      waypoints = []
       wpose.position.x += 0.01 
       waypoints.append(copy.deepcopy(wpose))
-      pass
 
-    print(wpose.position.x)
-    # wpose.position.z -= scale * 0.1  # First move up (z)
-    # wpose.position.y += scale * 0.2  # and sideways (y)
-    # waypoints.append(copy.deepcopy(wpose))
+      print(wpose.position.x)
+      # wpose.position.z -= scale * 0.1  # First move up (z)
+      # wpose.position.y += scale * 0.2  # and sideways (y)
+      # waypoints.append(copy.deepcopy(wpose))
 
-    # wpose.position.x += scale * 0.1  # Second move forward/backwards in (x)
-    # waypoints.append(copy.deepcopy(wpose))
+      # wpose.position.x += scale * 0.1  # Second move forward/backwards in (x)
+      # waypoints.append(copy.deepcopy(wpose))
 
-    # wpose.position.y -= scale * 0.1  # Third move sideways (y)
-    # waypoints.append(copy.deepcopy(wpose))
+      # wpose.position.y -= scale * 0.1  # Third move sideways (y)
+      # waypoints.append(copy.deepcopy(wpose))
 
-    # We want the Cartesian path to be interpolated at a resolution of 1 cm
-    # which is why we will specify 0.01 as the eef_step in Cartesian
-    # translation.  We will disable the jump threshold by setting it to 0.0 disabling:
-    (plan, fraction) = group.compute_cartesian_path(
-                                    waypoints,   # waypoints to follow
-                                    0.001,        # eef_step
-                                    0.0)         # jump_threshold
+      # We want the Cartesian path to be interpolated at a resolution of 1 cm
+      # which is why we will specify 0.01 as the eef_step in Cartesian
+      # translation.  We will disable the jump threshold by setting it to 0.0 disabling:
+      (plan, fraction) = group.compute_cartesian_path(
+                                      waypoints,   # waypoints to follow
+                                      0.1,        # eef_step
+                                      0.0)         # jump_threshold
 
-    # Note: We are just planning, not asking move_group to actually move the robot yet:
-    return plan, fraction
+      # Note: We are just planning, not asking move_group to actually move the robot yet:
+      # return plan, fraction
+      group.execute(plan)
 
     ## END_SUB_TUTORIAL
 
@@ -488,17 +546,30 @@ def main():
     raw_input()
     tutorial.startPosition()
 
-    print "============ Press `Enter` to plan and display a Cartesian path ..."
-    raw_input()
-    cartesian_plan, fraction = tutorial.plan_cartesian_path()
+    # print "============ Press `Enter` to plan and display a Cartesian path ..."
+    # raw_input()
+    # cartesian_plan, fraction = tutorial.plan_cartesian_path()
+
 
     # print "============ Press `Enter` to display a saved trajectory (this will replay the Cartesian path)  ..."
     # raw_input()
     # tutorial.display_trajectory(cartesian_plan)
 
-    print "============ Press `Enter` to execute a saved path ..."
+    print "============ Press `Enter` to execute"
     raw_input()
-    tutorial.execute_plan(cartesian_plan)
+    #tutorial.execute_plan(cartesian_plan)
+    tutorial.go_to_pose_goal(0.0, 0.4, 0.0, True)
+    #tutorial.plan_cartesian_path()
+
+    # print "============ Press `Enter` to execute"
+    # raw_input()
+    # #tutorial.execute_plan(cartesian_plan)
+    # tutorial.go_to_pose_goal(0.4, 0.0, 0.0)
+
+    # print "============ Press `Enter` to execute"
+    # raw_input()
+    # #tutorial.execute_plan(cartesian_plan)
+    # tutorial.go_to_pose_goal(0.0, -0.2, 0.0)
 
     # print "============ Press `Enter` to add a box to the planning scene ..."
     # raw_input()
