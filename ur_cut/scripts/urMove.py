@@ -20,10 +20,11 @@ from pyquaternion import *
 from geometry_msgs.msg import Vector3
 from forceTorque import forceTorque
 import threading
+from rviz import rvizCollision
 
 class urMove(object):
     def __init__(self):
-        super(MoveGroupPythonInteface, self).__init__()
+        super(urMove, self).__init__()
 
         ## First initialize `moveit_commander`_ and a `rospy`_ node:
         moveit_commander.roscpp_initialize(sys.argv)
@@ -62,8 +63,9 @@ class urMove(object):
         # We can get a list of all the groups in the robot:
         group_names = robot.get_group_names()
 
-        forceTorque = forceTorque()
-        
+        forceSensor = forceTorque()
+        rviz = rvizCollision(robot, scene, group)
+        rviz.addGround()
         
 
         # Misc variables
@@ -74,12 +76,12 @@ class urMove(object):
         self.planning_frame = planning_frame
         self.eef_link = eef_link
         self.group_names = group_names
-        self.forceTorque = forceTorque
+        self.forceSensor = forceSensor
 
-    def startPosition(self):
+    def toStartPosition(self):
 
         pose_goal = geometry_msgs.msg.Pose()
-        pose_goal = group.get_current_pose().pose
+        pose_goal = self.group.get_current_pose().pose
 
 
         pose_goal.position.x = -0.3
@@ -91,28 +93,32 @@ class urMove(object):
         pose_goal.orientation.z = 0.707
         pose_goal.orientation.w = 0.707
 
-        group.set_pose_target(pose_goal)
+        self.group.set_pose_target(pose_goal)
 
         ## Now, we call the planner to compute the plan and execute it.
-        plan = group.go(wait=True)
+        plan = self.group.go(wait=True)
 
-        group.stop()
+        self.group.stop()
         # It is always good to clear your targets after planning with poses.
-        group.clear_pose_targets()
+        self.group.clear_pose_targets()
 
         return
 
     def stopPoseGoalByForce(self):
-        refX, refY, refZ = forceTorque.getForce()
+        refX, refY, refZ = self.forceSensor.getForce()
+        print "Schwellwert: "
+        print(refZ)
         while True:
-            fx,fy,fz = forceTorque.getForce()
+            fx,fy,fz = self.forceSensor.getForce()
+            print (fz)
             #TODO Value from Config-File
-            if fz <= (refZ - 5):
+            if fz <= (refZ - 4):
+                print ("Barriere erkannt")
                 self.group.stop()
                 break   
             pass
 
-    def poseGoalRelative(self, posX = None, posY = None, posZ = None, force = False):
+    def toPoseGoalRelative(self, posX = None, posY = None, posZ = None, force = False):
 
         if force == True:
             threadForceTorque = threading.Thread(target=self.stopPoseGoalByForce)
@@ -125,15 +131,15 @@ class urMove(object):
         ## We can plan a motion for this group to a desired pose for the
         ## end-effector:
         pose_goal = geometry_msgs.msg.Pose()
-        pose_goal = group.get_current_pose().pose
+        pose_goal = self.group.get_current_pose().pose
 
         pose_goal.position.x += posX
         pose_goal.position.y += posY
         pose_goal.position.z += posZ
-        group.set_pose_target(pose_goal)
+        self.group.set_pose_target(pose_goal)
 
         #TODO Test auf threading und Execution
-        group.go(wait=False)
+        self.group.go(wait=False)
 
         ## Now, we call the planner to compute the plan and execute it.
         # plan = group.go(wait=True)
@@ -143,10 +149,10 @@ class urMove(object):
         # Note: there is no equivalent function for clear_joint_value_targets()
         # group.clear_pose_targets()
 
-        ## END_SUB_TUTORIAL
+
         time.sleep(5)     
 
-    def poseGoalAbsolute(self, posX = None, posY = None, posZ = None, force = False):
+    def toPoseGoalAbsolute(self, posX = None, posY = None, posZ = None, force = False):
 
         if force == True:
             threadForceTorque = threading.Thread(target=self.stopPoseGoalByForce)
@@ -159,15 +165,15 @@ class urMove(object):
         ## We can plan a motion for this group to a desired pose for the
         ## end-effector:
         pose_goal = geometry_msgs.msg.Pose()
-        pose_goal = group.get_current_pose().pose
+        pose_goal = self.group.get_current_pose().pose
 
         pose_goal.position.x = posX
         pose_goal.position.y = posY
         pose_goal.position.z = posZ
-        group.set_pose_target(pose_goal)
+        self.group.set_pose_target(pose_goal)
 
         #TODO Test auf threading und Execution
-        group.go(wait=False)
+        self.group.go(wait=False)
 
         ## Now, we call the planner to compute the plan and execute it.
         # plan = group.go(wait=True)
@@ -177,7 +183,7 @@ class urMove(object):
         # Note: there is no equivalent function for clear_joint_value_targets()
         # group.clear_pose_targets()
 
-        ## END_SUB_TUTORIAL
+
         time.sleep(5)   
 
     pass

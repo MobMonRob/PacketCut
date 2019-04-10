@@ -77,25 +77,35 @@ class rvizCollision(object):
 
 
     def addGround(self):
-        ## Adding Objects to the Planning Scene
-        ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         box_pose = geometry_msgs.msg.PoseStamped()
-        box_pose.header.frame_id = robot.get_planning_frame()
-        box_pose.pose.orientation.w     = 1.0
-        box_pose.pose.position.x        = 0.0
-        box_pose.pose.position.y        = 0.0
-        box_pose.pose.position.z        = -0.01
-        size[]
-        size[0] = 2.0
-        size[1] = 2.0
-        size[2] = 0.01
-        self.addBox("groundPlate", box_pose, size)
+        box_pose.header.frame_id = self.robot.get_planning_frame()
+        box_pose.pose.orientation.w = 1.0
+        box_pose.pose.position.x = 0.0
+        box_pose.pose.position.y = 0.0
+        box_pose.pose.position.z = -0.01
+        self.box_name = "box"
+        self.scene.add_box(self.box_name, box_pose, size=(2.0, 2.0, 0.01))
 
+        ## END_SUB_TUTORIAL
+        # Copy local variables back to class variables. In practice, you should use the class
+        # variables directly unless you have a good reason not to.
+        return self.wait_for_state_update(box_is_known=True)
 
     def addBox(self, name, parameters, size):
-        self.box_name = name
-        scene.add_box(self.box_name, box_pose, size=(size[0], size[1], size[2]))
-        return self.wait_for_state_update(box_is_known=True)
+        box_pose = geometry_msgs.msg.PoseStamped()
+        box_pose.header.frame_id = robot.get_planning_frame()
+        box_pose.pose.orientation.w = 1.0
+        box_pose.pose.position.x = 0.0
+        box_pose.pose.position.y = 0.0
+        box_pose.pose.position.z = -0.01
+        box_name = "box"
+        scene.add_box(box_name, box_pose, size=(2.0, 2.0, 0.01))
+
+        ## END_SUB_TUTORIAL
+        # Copy local variables back to class variables. In practice, you should use the class
+        # variables directly unless you have a good reason not to.
+        self.box_name=box_name
+        return self.wait_for_state_update(box_is_known=True, timeout=timeout)
 
     def attach_box(self, timeout=4):
         # Copy class variables to local variables to make the web tutorials more clear.

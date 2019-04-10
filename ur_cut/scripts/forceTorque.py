@@ -12,20 +12,15 @@ class forceTorque(object):
     super(forceTorque, self).__init__()
 
 
+
+  def getForce(self):
     host = "192.168.3.2"    # The remote host
     port = 63351            # The same port as used by the server
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Initialize Socket
 
-    self.threadForce = threadForce
-    self.host = host
-    self.port = port
-    self.sock = sock
-
-  def getForce(self):
-
-    self.sock.connect((self.host, self.port))
-    data = self.sock.recv(128)
-    self.sock.close()
+    sock.connect((host, port))
+    data = sock.recv(128)
+    sock.close()
     
     data = data[1:-1]
     data = data.split()
