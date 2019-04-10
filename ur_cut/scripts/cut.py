@@ -1,41 +1,5 @@
 #!/usr/bin/env python
 
-# Software License Agreement (BSD License)
-#
-# Copyright (c) 2013, SRI International
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
-#
-#  * Redistributions of source code must retain the above copyright
-#    notice, this list of conditions and the following disclaimer.
-#  * Redistributions in binary form must reproduce the above
-#    copyright notice, this list of conditions and the following
-#    disclaimer in the documentation and/or other materials provided
-#    with the distribution.
-#  * Neither the name of SRI International nor the names of its
-#    contributors may be used to endorse or promote products derived
-#    from this software without specific prior written permission.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# Author: Acorn Pooley, Mike Lautman
-
-## BEGIN_SUB_TUTORIAL imports
-##
 ## To use the Python MoveIt! interfaces, we will import the `moveit_commander`_ namespace.
 ## This namespace provides us with a `MoveGroupCommander`_ class, a `PlanningSceneInterface`_ class,
 ## and a `RobotCommander`_ class. (More on these below)
@@ -64,7 +28,7 @@ from pyquaternion import *
 from geometry_msgs.msg import Vector3
 import socket
 import threading
-## END_SUB_TUTORIAL
+
 
 def all_close(goal, actual, tolerance):
   """
@@ -99,6 +63,7 @@ class MoveGroupPythonInteface(object):
     ## Instantiate a `RobotCommander`_ object. This object is the outer-level interface to
     ## the robot:
     robot = moveit_commander.RobotCommander()
+    
 
     ## Instantiate a `PlanningSceneInterface`_ object.  This object is an interface
     ## to the world surrounding the robot:
@@ -111,6 +76,7 @@ class MoveGroupPythonInteface(object):
     ## This interface can be used to plan and execute motions on the Panda:
     group_name = "manipulator"
     group = moveit_commander.MoveGroupCommander(group_name)
+    
 
     ## We create a `DisplayTrajectory`_ publisher which is used later to publish
     ## trajectories for RViz to visualize:
@@ -141,8 +107,6 @@ class MoveGroupPythonInteface(object):
     print ""
     ## END_SUB_TUTORIAL
 
-    force = False
-    threadStop = False
     # Misc variables
     self.box_name = ''
     self.robot = robot
@@ -153,13 +117,11 @@ class MoveGroupPythonInteface(object):
     self.eef_link = eef_link
     self.group_names = group_names
     self.threadForce = threadForce
-    self.threadStop = threadStop
-
 
   def getForce(self):
     # Socket wird jedes mal neu geoeffnet und geschlossen, um sauberen Stream zu erhalten
     getValue = False
-    while getValue != True or threadStop != True:
+    while getValue != True: #and self.threadStop != True:
       host = "192.168.3.2"    # The remote host
       port = 63351            # The same port as used by the server
       sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -172,20 +134,21 @@ class MoveGroupPythonInteface(object):
       #print(data)
       data = data.split()
       #print(data)
-      fx = float(data[0])
-      fy = float(data[2])
-      fz = float(data[4])
-      mx = float(data[6])
-      my = float(data[8])
-      mz = float(data[10])
-      print(fz)
-      if fz <=80:
+      fx = abs(float(data[0]))
+      fy = abs(float(data[2]))
+      fz = abs(float(data[4]))
+      mx = abs(float(data[6]))
+      my = abs(float(data[8]))
+      mz = abs(float(data[10]))
+      print("%.2f, %.2f, %.2f, %.2f, %.2f, %.2f" % (fx, fy, fz, mx, my, mz))
+      print("Still alive")
+      if fz <=86.0:
         print("Barriere erkannt")
         self.group.stop()
         getValue =  True
+        break
         pass
       pass
-    
 
     
   def startPosition(self):
@@ -257,9 +220,8 @@ class MoveGroupPythonInteface(object):
     group = self.group
     
     if force == True:
-      threadForce.start()
+      self.threadForce.start()
       pass
-
     #steps = int(abs((posX + posY + posZ)*100))
     steps=1
 
@@ -272,85 +234,75 @@ class MoveGroupPythonInteface(object):
     pose_goal = geometry_msgs.msg.Pose()
     pose_goal = group.get_current_pose().pose
 
-    for i in range(steps):
-      # if self.barrier == 1:
-      #   break
-      #   pass
-      pose_goal.position.x += (posX/steps)
-      pose_goal.position.y += (posY/steps)
-      pose_goal.position.z += (posZ/steps)
-      group.set_pose_target(pose_goal)
-      ## Now, we call the planner to compute the plan and execute it.
-      group.go(wait=True)
-      # if force == True:
-      #   self.getForce()
-      #   pass
-      pass
+    print("Fahre jetzt los")
+
+    pose_goal.position.x += (posX/steps)
+    pose_goal.position.y += (posY/steps)
+    pose_goal.position.z += (posZ/steps)
+    group.set_pose_target(pose_goal)
+    ## Now, we call the planner to compute the plan and execute it.
+    group.go(wait=False)
 
     ## Now, we call the planner to compute the plan and execute it.
     # plan = group.go(wait=True)
     # Calling `stop()` ensures that there is no residual movement
-    group.stop()
-    self.threadStop = True
+    # group.stop()
     # It is always good to clear your targets after planning with poses.
     # Note: there is no equivalent function for clear_joint_value_targets()
-    group.clear_pose_targets()
+    # group.clear_pose_targets()
 
     ## END_SUB_TUTORIAL
-
+    time.sleep(5)
+    group.
+    
     # For testing:
     # Note that since this section of code will not be included in the tutorials
     # we use the class variable rather than the copied state variable
-    current_pose = self.group.get_current_pose().pose
-    return all_close(pose_goal, current_pose, 0.01)
+    #current_pose = self.group.get_current_pose().pose
+    #return all_close(pose_goal, current_pose, 0.01)
 
 
-  def plan_cartesian_path(self, scale=1):
-    # Copy class variables to local variables to make the web tutorials more clear.
-    # In practice, you should use the class variables directly unless you have a good
-    # reason not to.
+  def plan_cartesian_path(self, posX = None, posY = None, posZ = None):
+
     group = self.group
-
-    ## BEGIN_SUB_TUTORIAL plan_cartesian_path
-    ##
     ## Cartesian Paths
     ## ^^^^^^^^^^^^^^^
     ## You can plan a Cartesian path directly by specifying a list of waypoints
     ## for the end-effector to go through:
-    ##
+
     waypoints = []
-
     wpose = group.get_current_pose().pose
-    print(wpose.position.x)
-    for i in range(40):
-      waypoints = []
-      wpose.position.x += 0.01 
-      waypoints.append(copy.deepcopy(wpose))
 
-      print(wpose.position.x)
-      # wpose.position.z -= scale * 0.1  # First move up (z)
-      # wpose.position.y += scale * 0.2  # and sideways (y)
-      # waypoints.append(copy.deepcopy(wpose))
+    steps = 40
 
-      # wpose.position.x += scale * 0.1  # Second move forward/backwards in (x)
-      # waypoints.append(copy.deepcopy(wpose))
+    for i in range(steps):
+      wpose.position.x += (posX/steps) 
+      wpose.position.y += (posX/steps) 
+      wpose.position.z += (posX/steps)
+      waypoints.append(copy.deepcopy(wpose))  
+      pass
 
-      # wpose.position.y -= scale * 0.1  # Third move sideways (y)
-      # waypoints.append(copy.deepcopy(wpose))
 
-      # We want the Cartesian path to be interpolated at a resolution of 1 cm
-      # which is why we will specify 0.01 as the eef_step in Cartesian
-      # translation.  We will disable the jump threshold by setting it to 0.0 disabling:
-      (plan, fraction) = group.compute_cartesian_path(
-                                      waypoints,   # waypoints to follow
-                                      0.1,        # eef_step
-                                      0.0)         # jump_threshold
+    # We want the Cartesian path to be interpolated at a resolution of 1 cm
+    # which is why we will specify 0.01 as the eef_step in Cartesian
+    # translation.  We will disable the jump threshold by setting it to 0.0 disabling:
+    (plan, fraction) = group.compute_cartesian_path(
+                                    waypoints,   # waypoints to follow
+                                    0.1,        # eef_step
+                                    0.0)         # jump_threshold
 
-      # Note: We are just planning, not asking move_group to actually move the robot yet:
-      # return plan, fraction
-      group.execute(plan)
+    # Note: We are just planning, not asking move_group to actually move the robot yet:
+    # return plan, fraction
 
-    ## END_SUB_TUTORIAL
+    raw_input()
+    print("Fahre jetzt los")
+    group.execute(plan, wait=False)
+    
+    # It is always good to clear your targets after planning with poses.
+    # Note: there is no equivalent function for clear_joint_value_targets()
+    #group.clear_pose_targets()
+
+
 
   def display_trajectory(self, plan):
     # Copy class variables to local variables to make the web tutorials more clear.
@@ -558,7 +510,13 @@ def main():
     print "============ Press `Enter` to execute"
     raw_input()
     #tutorial.execute_plan(cartesian_plan)
+    tutorial.group.set_max_velocity_scaling_factor(0.01)
+    tutorial.group.set_max_acceleration_scaling_factor(0.01)
     tutorial.go_to_pose_goal(0.0, 0.4, 0.0, True)
+
+    #raw_input()
+    #tutorial.go_to_pose_goal(0.0, -0.4, 0.0, True)
+    #tutorial.getForce()
     #tutorial.plan_cartesian_path()
 
     # print "============ Press `Enter` to execute"
