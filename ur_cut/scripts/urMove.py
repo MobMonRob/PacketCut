@@ -22,6 +22,8 @@ from forceTorque import forceTorque
 import threading
 from rviz import rvizCollision
 
+
+
 class urMove(object):
     def __init__(self):
         super(urMove, self).__init__()
@@ -71,6 +73,7 @@ class urMove(object):
         # Start the CollisionObjects in RVIZ
         rviz = rvizCollision(robot, scene, group)
         
+        
 
         # Misc variables
         self.robot = robot
@@ -86,7 +89,7 @@ class urMove(object):
 
     # Deconstructor for the urMove - Class 
     def __del__(self):
-        self.rviz.removeGround()
+        
 
     # Start position for the robot
     def toStartPosition(self):
