@@ -22,12 +22,15 @@ from forceTorque import forceTorque
 import threading
 from rviz import rvizCollision
 
+
+
 class urMove(object):
     def __init__(self):
         super(urMove, self).__init__()
 
         ## First initialize `moveit_commander`_ and a `rospy`_ node:
         moveit_commander.roscpp_initialize(sys.argv)
+        rospy.init_node('urMove', anonymous=True)
 
         ## Instantiate a `RobotCommander`_ object. This object is the outer-level interface to
         ## the robot:
@@ -38,10 +41,10 @@ class urMove(object):
         scene = moveit_commander.PlanningSceneInterface()
 
         ## Instantiate a `MoveGroupCommander`_ object.  This object is an interface
-        ## to one group of joints.  In this case the group is the joints in the Panda
+        ## to one group of joints.  In this case the group is the joints in the UR10
         ## arm so we set ``group_name = manipulator``. If you are using a different robot,
         ## you should change this value to the name of your robot arm planning group.
-        ## This interface can be used to plan and execute motions on the Panda:
+        ## This interface can be used to plan and execute motions on the UR10:
         group_name = "manipulator"
         group = moveit_commander.MoveGroupCommander(group_name)
         
@@ -52,6 +55,7 @@ class urMove(object):
                                                     moveit_msgs.msg.DisplayTrajectory,
                                                     queue_size=20)
 
+        
         ## Getting Basic Information
         ## ^^^^^^^^^^^^^^^^^^^^^^^^^
         # We can get the name of the reference frame for this robot:
@@ -63,9 +67,12 @@ class urMove(object):
         # We can get a list of all the groups in the robot:
         group_names = robot.get_group_names()
 
+        # Start the ForceTorque Sensor 
         forceSensor = forceTorque()
+
+        # Start the CollisionObjects in RVIZ
         rviz = rvizCollision(robot, scene, group)
-        rviz.addGround()
+        
         
 
         # Misc variables
@@ -77,7 +84,14 @@ class urMove(object):
         self.eef_link = eef_link
         self.group_names = group_names
         self.forceSensor = forceSensor
+        self.rviz = rviz
 
+
+    # Deconstructor for the urMove - Class 
+    def __del__(self):
+        
+
+    # Start position for the robot
     def toStartPosition(self):
 
         pose_goal = geometry_msgs.msg.Pose()
@@ -95,15 +109,17 @@ class urMove(object):
 
         self.group.set_pose_target(pose_goal)
 
-        ## Now, we call the planner to compute the plan and execute it.
-        plan = self.group.go(wait=True)
-
+        # Go to new position
+        self.group.go(wait=True)
+        # After Mmving you have to stop the Robot
         self.group.stop()
         # It is always good to clear your targets after planning with poses.
         self.group.clear_pose_targets()
 
         return
 
+    # Function for getting information about the ForceTorque Sensor 
+    # and stop the Robot after fz is over 4N 
     def stopPoseGoalByForce(self):
         refX, refY, refZ = self.forceSensor.getForce()
         print "Schwellwert: "
@@ -118,8 +134,11 @@ class urMove(object):
                 break   
             pass
 
+    # Function to move the Robot in a relative position
     def toPoseGoalRelative(self, posX = None, posY = None, posZ = None, force = False):
 
+        # If you will use the force sensor to stop the robot,
+        # the thread will start to get information of the sensor
         if force == True:
             threadForceTorque = threading.Thread(target=self.stopPoseGoalByForce)
             threadForceTorque.start()
@@ -133,6 +152,7 @@ class urMove(object):
         pose_goal = geometry_msgs.msg.Pose()
         pose_goal = self.group.get_current_pose().pose
 
+        # setting the new position
         pose_goal.position.x += posX
         pose_goal.position.y += posY
         pose_goal.position.z += posZ
@@ -148,10 +168,8 @@ class urMove(object):
         # It is always good to clear your targets after planning with poses.
         # Note: there is no equivalent function for clear_joint_value_targets()
         # group.clear_pose_targets()
-
-
-        time.sleep(5)     
-
+   
+    # Function to move the Robot in an absolute position
     def toPoseGoalAbsolute(self, posX = None, posY = None, posZ = None, force = False):
 
         if force == True:
@@ -182,8 +200,6 @@ class urMove(object):
         # It is always good to clear your targets after planning with poses.
         # Note: there is no equivalent function for clear_joint_value_targets()
         # group.clear_pose_targets()
-
-
-        time.sleep(5)   
+ 
 
     pass

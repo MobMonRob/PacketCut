@@ -3,36 +3,41 @@
 import sys
 import copy
 import rospy
-import urMove
-from ur_driver.io_interface import *
+from urMove import urMove
+from endeffector import endeffector
 
 def main():
     try:
-    
-        rospy.init_node('urCut', anonymous=True)
-        move = urMove.urMove()
 
-        get_states()
-        set_states()
+        move = urMove()
+
+        move.rviz.addGround()
+
 
         print "--------Go to start Position--------"
         raw_input()
-        move.group.set_max_velocity_scaling_factor(0.05)
         move.toStartPosition()
 
 
-        print "============ Press `Enter` to execute"
+
+       
+
+        print "------Press `Enter` to execute------"
         raw_input()
-        set_digital_out(2, True)
-        set_digital_out(3, False)
-        move.toPoseGoalRelative(0.0, 0.4, 0.0, True)
+        endeffector.grab()
+        move.group.set_max_velocity_scaling_factor(0.1)
+        move.toPoseGoalRelative(0.0, 0.4, 0.0, force=False)
+        
+        print "-----Paket fallen lassen-------"
         raw_input()
-        set_digital_out(2, False)
-        set_digital_out(3, True)
+        endeffector.open()
 
 
+        print "------Python Skript complete!-----"
+        
+        move.rviz.removeGround()
+        del move
 
-        print "============ Python Skript complete!"
     except rospy.ROSInterruptException:
         return
     except KeyboardInterrupt:
