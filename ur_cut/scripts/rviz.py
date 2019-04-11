@@ -8,19 +8,14 @@ import moveit_msgs.msg
 import geometry_msgs.msg
 from math import pi
 from std_msgs.msg import String
-from moveit_commander.conversions import pose_to_list
-import roslib; roslib.load_manifest('ur_driver')
 import actionlib
 from control_msgs.msg import *
 from trajectory_msgs.msg import *
-from ur_driver.io_interface import *
 import numpy as numpy
 import time
-import edge_detection_pmd.msg
 from pyquaternion import *
 from geometry_msgs.msg import Vector3
-import socket
-import threading
+
 
 
 
@@ -49,9 +44,9 @@ class rvizCollision(object):
         self.eef_link = eef_link
         self.group_names = group_names
 
+    ## Ensuring Collision Updates Are Receieved
+    ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     def wait_for_state_update(self, box_is_known=False, box_is_attached=False, timeout=4):
-        ## Ensuring Collision Updates Are Receieved
-        ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         start = rospy.get_time()
         seconds = rospy.get_time()
@@ -77,35 +72,27 @@ class rvizCollision(object):
 
 
     def addGround(self):
+        return self.add_box("groundPlate", position=(0, 0, -0.01), box_size=(2, 2, 0.01), timeout=10)
+        
+
+    def removeGround(self):
+        return self.remove_box("groundPlate")
+
+    def add_box(self, name = "box", position = (0, 0, 0), box_size = (1, 1, 1), timeout=4):
+        ## Adding Objects to the Planning Scene
+        ## ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         box_pose = geometry_msgs.msg.PoseStamped()
         box_pose.header.frame_id = self.robot.get_planning_frame()
         box_pose.pose.orientation.w = 1.0
-        box_pose.pose.position.x = 0.0
-        box_pose.pose.position.y = 0.0
-        box_pose.pose.position.z = -0.01
-        self.box_name = "box"
-        self.scene.add_box(self.box_name, box_pose, size=(2.0, 2.0, 0.01))
+        box_pose.pose.position.x = position[0]
+        box_pose.pose.position.y = position[1]
+        box_pose.pose.position.z = position[2]
+        self.box_name = name
+        self.scene.add_box(self.box_name, box_pose, box_size)
 
-        ## END_SUB_TUTORIAL
-        # Copy local variables back to class variables. In practice, you should use the class
-        # variables directly unless you have a good reason not to.
-        return self.wait_for_state_update(box_is_known=True)
-
-    def addBox(self, name, parameters, size):
-        box_pose = geometry_msgs.msg.PoseStamped()
-        box_pose.header.frame_id = robot.get_planning_frame()
-        box_pose.pose.orientation.w = 1.0
-        box_pose.pose.position.x = 0.0
-        box_pose.pose.position.y = 0.0
-        box_pose.pose.position.z = -0.01
-        box_name = "box"
-        scene.add_box(box_name, box_pose, size=(2.0, 2.0, 0.01))
-
-        ## END_SUB_TUTORIAL
-        # Copy local variables back to class variables. In practice, you should use the class
-        # variables directly unless you have a good reason not to.
-        self.box_name=box_name
         return self.wait_for_state_update(box_is_known=True, timeout=timeout)
+
+
 
     def attach_box(self, timeout=4):
         # Copy class variables to local variables to make the web tutorials more clear.

@@ -253,7 +253,7 @@ class MoveGroupPythonInteface(object):
 
     ## END_SUB_TUTORIAL
     time.sleep(5)
-    group.
+    
     
     # For testing:
     # Note that since this section of code will not be included in the tutorials
