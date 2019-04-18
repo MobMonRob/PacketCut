@@ -5,6 +5,8 @@
  */
 package sensorplot;
 
+import java.util.function.*;
+
 /**
  *
  * @author MobMonRob
@@ -25,7 +27,8 @@ public class SensorPlot {
         System.out.println("SensorPlot.init()");
         sensorDataReceiver = SensorDataReceiver.createStandardReceiver();
         sensorDataReceiver.connect();
-        sensorDataReceiver.receive();
+        
+        Consumer<DataPoint> dataPointConsumer = d -> System.out.println(d.toString());
+        sensorDataReceiver.receive(dataPointConsumer);
     }
-    
 }

@@ -20,14 +20,18 @@ public class DataPoint {
     public final double mz;
     public final OffsetDateTime timestamp;
     
-    public DataPoint(double fx, double fy, double fz, double mx, double my, double mz) {
+    public DataPoint(double fx, double fy, double fz, double mx, double my, double mz, OffsetDateTime timestamp) {
         this.fx = fx;
         this.fy = fy;
         this.fz = fz;
         this.mx = mx;
         this.my = my;
         this.mz = mz;
-        
-        timestamp = OffsetDateTime.now();
+        this.timestamp = timestamp;
     }
-}
+    
+    @Override
+    public String toString() {
+        return "(" + String.format("%.06f, %.06f, %.06f, %.06f, %.06f, %.06f", fx, fy, fz, mx, my, mz) + ", " + timestamp.toString() + ")";
+    }
+} 
