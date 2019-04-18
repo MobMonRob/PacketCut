@@ -1,0 +1,48 @@
+Daten für das Socket in forceTorque.py, cut.py Z. 121:
+
+# Socket wird jedes mal neu geoeffnet und geschlossen, um sauberen Stream zu erhalten
+--> warum?
+
+    host = "192.168.3.2"    # The remote host
+    port = 63351            # The same port as used by the server
+    data = sock.recv(128)
+
+    fx = abs(float(data[0]))
+    fy = abs(float(data[2]))
+    fz = abs(float(data[4]))
+    mx = abs(float(data[6]))
+    my = abs(float(data[8]))
+    mz = abs(float(data[10]))
+
+
+_________________________________
+Java Version: 8
+Roboter initialisieren: drücken und halten; nochmal wechselt die Richtung
+Türe schließen immer!
+
+_________________________________
+
+1) Sensor auslesen per Socket in Java
+	//1. Java Socket Client
+		//-Daten holen einfach und ausgeben auf Konsole
+	//2. An Hardware testen -> MIR Netzwerkschlüssel: mirex4you
+		//-IP Adresse passt?
+	3. Empfangene Daten nutzbar machen
+		//-Tokenisieren
+		//-Zu Doubles konvertierenzur richtigen Zeit holen und festhalten
+		-Fehler bereinigen mit zu viele Werte da
+		-Zeitstempel 
+		-aus der Schleife heraus holen mit Callback
+	4. Verbessern
+		-Verbindung schließen
+		-Ordentliches Logging
+		-Dokumentation wo notwendig
+		-Textdokument in Git
+2) Zeitstempel für Empfang dran -> Spekulation auf relativ konstante Latenz
+3) Plotten
+	1. XChart API anschauen
+		-Wie Library in Netbeans importieren? -> sonst: Umstieg auf maven?
+4) hinter ROS API verbergen (Messages)
+
+CherryTree
+
