@@ -36,14 +36,13 @@ _________________________________
 		//-Receive Methode verbessern (In Methoden auslagern wo der Name passt)
 	4. Verbessern
 		-Verbindung schließen
-		-Ordentliches Logging
 		-Dokumentation wo notwendig
-		-Textdokument in Git
 2) Zeitstempel für Empfang dran -> Spekulation auf relativ konstante Latenz
 3) Plotten
 	1. XChart API anschauen
 		-Wie Library in Netbeans importieren? -> sonst: Umstieg auf maven?
 4) hinter ROS API verbergen (Messages)
+5) Asynchrone Kommunikation einbauen. Receive von SensorDataReceiver sollte in einem seperaten Thread landen
 
 CherryTree?!
 

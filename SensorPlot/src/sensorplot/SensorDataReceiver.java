@@ -52,6 +52,18 @@ public class SensorDataReceiver {
         }
     }
 
+    public void deconnect() {
+        System.out.println("SensorDataReceiver.deconnect()");
+        try {
+            socket.close();
+        } catch (IOException e) {
+            System.err.println("deconnecting failed!");
+        }
+    }
+
+    /**
+     * caution: infinite loop
+     */
     public void receive(Consumer<String> dataPointStringConsumer) {
         System.out.println("SensorDataReceiver.receive()");
 
