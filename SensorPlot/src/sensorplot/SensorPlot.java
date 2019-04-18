@@ -5,6 +5,7 @@
  */
 package sensorplot;
 
+import java.time.OffsetDateTime;
 import java.util.function.*;
 
 /**
@@ -29,7 +30,11 @@ public class SensorPlot {
         sensorDataReceiver = SensorDataReceiver.createStandardReceiver();
         sensorDataReceiver.connect();
 
-        Consumer<DataPoint> dataPointConsumer = d -> System.out.println(d.toString());
-        sensorDataReceiver.receive(dataPointConsumer);
+        Consumer<String> dataPointStringConsumer = dataPointString -> {
+            DataPoint dataPoint = SensorDataParser.parse(dataPointString, OffsetDateTime.now());
+            System.out.println(dataPoint.toString());
+        };
+
+        sensorDataReceiver.receive(dataPointStringConsumer);
     }
 }

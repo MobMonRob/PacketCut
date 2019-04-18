@@ -32,8 +32,8 @@ _________________________________
 		//-Zu Doubles konvertierenzur richtigen Zeit holen und festhalten
 		//-Fehler bereinigen mit zu viele Werte da
 		//-Zeitstempel 
-		-aus der Schleife heraus holen mit Callback
-		-Receive Methode verbessern (In Methoden auslagern wo der Name passt)
+		//-aus der Schleife heraus holen mit Callback
+		//-Receive Methode verbessern (In Methoden auslagern wo der Name passt)
 	4. Verbessern
 		-Verbindung schlieﬂen
 		-Ordentliches Logging

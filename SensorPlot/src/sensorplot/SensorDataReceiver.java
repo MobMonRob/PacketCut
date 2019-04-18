@@ -7,7 +7,6 @@ package sensorplot;
 
 import java.io.*;
 import java.net.*;
-import java.time.OffsetDateTime;
 import java.util.function.*;
 
 /**
@@ -53,20 +52,16 @@ public class SensorDataReceiver {
         }
     }
 
-    public void receive(Consumer<DataPoint> dataPointConsumer) {
+    public void receive(Consumer<String> dataPointStringConsumer) {
         System.out.println("SensorDataReceiver.receive()");
 
         try {
             BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             char[] buffer = new char[MESSAGE_SIZE];
-            String dataPointString;
-            OffsetDateTime now;
 
             while (true) {
                 socketReader.read(buffer, 0, MESSAGE_SIZE);
-                now = OffsetDateTime.now();
-                dataPointString = String.valueOf(buffer);
-                dataPointConsumer.accept(SensorDataParser.parse(dataPointString, now));
+                dataPointStringConsumer.accept(String.valueOf(buffer));
             }
         } catch (IOException e) {
             System.err.println("Receiving failed!");
