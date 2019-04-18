@@ -12,6 +12,7 @@ import java.time.OffsetDateTime;
  * @author MobMonRob
  */
 public class DataPoint {
+
     public final double fx;
     public final double fy;
     public final double fz;
@@ -19,7 +20,7 @@ public class DataPoint {
     public final double my;
     public final double mz;
     public final OffsetDateTime timestamp;
-    
+
     public DataPoint(double fx, double fy, double fz, double mx, double my, double mz, OffsetDateTime timestamp) {
         this.fx = fx;
         this.fy = fy;
@@ -29,9 +30,9 @@ public class DataPoint {
         this.mz = mz;
         this.timestamp = timestamp;
     }
-    
+
     @Override
     public String toString() {
         return "(" + String.format("%.06f, %.06f, %.06f, %.06f, %.06f, %.06f", fx, fy, fz, mx, my, mz) + ", " + timestamp.toString() + ")";
     }
-} 
+}

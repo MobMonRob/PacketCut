@@ -12,8 +12,9 @@ import java.util.function.*;
  * @author MobMonRob
  */
 public class SensorPlot {
+
     SensorDataReceiver sensorDataReceiver;
-    
+
     /**
      * @param args the command line arguments
      */
@@ -22,12 +23,12 @@ public class SensorPlot {
         SensorPlot sensorPlot = new SensorPlot();
         sensorPlot.init();
     }
-    
+
     public void init() {
         System.out.println("SensorPlot.init()");
         sensorDataReceiver = SensorDataReceiver.createStandardReceiver();
         sensorDataReceiver.connect();
-        
+
         Consumer<DataPoint> dataPointConsumer = d -> System.out.println(d.toString());
         sensorDataReceiver.receive(dataPointConsumer);
     }
