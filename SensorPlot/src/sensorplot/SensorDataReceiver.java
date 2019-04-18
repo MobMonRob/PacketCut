@@ -72,12 +72,6 @@ public class SensorDataReceiver {
                 
                 System.out.println(dataPoint);
                 System.out.println("--------------------");
-                
-               //(-5.650000 , -91.000000 , 112.169998 , -2.777000 , -0.115000 , 3.781000)        
-                
-               //StringTokenizer tokenizer = new StringTokenizer(dataPoint, "", true);
-               
-               //tokenizer.asIterator().forEachRemaining(t -> System.out.println(t));
                
                Pattern p = Pattern.compile("-?[0-9]+.{1}[0-9]+");
                Matcher m = p.matcher(dataPoint);
@@ -92,11 +86,11 @@ public class SensorDataReceiver {
                
                v.forEach(s -> System.out.println(s));
                
+               System.out.println("__________");
+               
                List<Double> d = v.stream().map(s -> Double.parseDouble(s)).collect(Collectors.toList());
                
                d.forEach(dou -> System.out.println(dou));
-               
-               //Warum zu viele Werte?
             }
         }
         catch(IOException e) {
