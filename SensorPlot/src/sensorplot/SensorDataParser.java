@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
  */
 public class SensorDataParser {
 
-    //public DataPoint parse(String dataPointString) {
-    //}
     static final Pattern COORDINATE_FORMAT = Pattern.compile("-?[0-9]+.{1}[0-9]+");
     
     private SensorDataParser() {
