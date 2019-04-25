@@ -48,7 +48,7 @@ Roboter aus machen</rich_text>
 
 </rich_text>
 	</node>
-	<node custom_icon_id="0" foreground="#ff0000" is_bold="True" name="Aktuell" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556179378.83" ts_lastsave="1556189591.2" unique_id="3">
+	<node custom_icon_id="0" foreground="#ff0000" is_bold="True" name="Aktuell" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556179378.83" ts_lastsave="1556198404.45" unique_id="3">
 		<rich_text scale="h1" underline="single">Daten besser analysierbar machen</rich_text>
 		<rich_text>
 Extra chart mit allen letzten x Sekunden
@@ -64,6 +64,40 @@ Löcher in der Zeitmessereihe detektieren?
 --&gt;bessere UI von der Bedienung her basteln!
 
 </rich_text>
+		<node custom_icon_id="0" foreground="" is_bold="False" name="E-Mail Oliver" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556198404.46" ts_lastsave="1556198598.3" unique_id="5">
+			<rich_text>Ziel ist ja,
+   1) den Realtime-Plot der Kraftmessdaten in unsere bestehende Desktopanwendung LynxAnalyser einzubauen.
+
+   2) Den Kraft/Momenten-Sensor soweit zu testen, dass wir Vertrauen in die Daten bekommen und sample-rate, Äquidistanz der Messpunkte, geg. Ausfallhäufigkeiten kennen und damit die Grenzen des Systems kennen.
+
+   3) Integration des Datenstreams in ROS um kraftsensitive Roboter-Apps bauen zu können
+
+
+Bevor ich das in Lynx einbaue, würde ich gerne doch erst noch mal einen Vergleich verschiedener Plot-APIs sehen. Wäre klasse, wenn Du noch ein oder zwei weitere implementieren könntest und ein wenig vergleichen:
+
+	-Möglichkeiten der Konfiguration (Beschriftungen, Ticks etc.)
+
+	-Aussehen der UI
+
+	-Performance
+
+
+Also falls, Du Dich morgen dem Pendelversuch noch nicht anfreunden kannst, kannst Du gerne auch mit den UI Dingen weitermachen.
+
+Außerdem habe ich noch mal überlegt, wie eine Realtime-Plotdarstellung für uns besonders praktisch wäre:
+
+Ich stelle mir einen Schieberegler vor mit dem man die Breite des Zeitfensters T das dargestellt werden soll einstellen kann. Dargestellt werden immer die letzten T Sekunden.
+
+Außerdem soll ein zweiter Schieberegler für einen Zoom zur Verfügung gestellt werden.
+
+Das Fenster auf dem Bildschirm soll eine horizontale Scrolbar bekommen und zeigt damit immer nur einen Ausschnitt von T an.
+
+D.h. wenn man die Scrollbar ganz nach rechts schiebt zeigt der Plot am rechten Rand immer den aktuellen Zahlenwert an. Wieviele man da sieht hängt von der Einstellung des Zooms ab.
+
+Vielleicht könnten noch eine Checkbox hinzugefügt werden mit der automatisch immer das ganze letzte Zeitintervall T angezeigt wird.
+
+</rich_text>
+		</node>
 	</node>
 	<node custom_icon_id="0" foreground="" is_bold="False" name="Künftig" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556179385.33" ts_lastsave="1556189458.46" unique_id="4">
 		<rich_text>hinter ROS API verbergen (Messages)
