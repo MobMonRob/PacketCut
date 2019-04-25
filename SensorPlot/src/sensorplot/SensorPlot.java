@@ -27,20 +27,28 @@ public class SensorPlot {
 
     public void init() {
         System.out.println("SensorPlot.init()");
-        
+
+        //----------------------------------------------------------------------
         Plot plot = new Plot();
-        plot.testPlot();
-        
-        // /*
+        DataPointCoordinatesList allDataPointCoordinates = new DataPointCoordinatesList();
+        plot.display();
+        //----------------------------------------------------------------------
+
+        //----------------------------------------------------------------------
         sensorDataReceiver = SensorDataReceiver.createStandardReceiver();
         sensorDataReceiver.connect();
 
         Consumer<String> dataPointStringConsumer = dataPointString -> {
             DataPoint dataPoint = SensorDataParser.parse(dataPointString, OffsetDateTime.now());
-            System.out.println(dataPoint.toString());
+
+            //------------------------------------------------------------------
+            allDataPointCoordinates.addDataPoint(dataPoint);
+            plot.updateDatePointCoordinatesList(allDataPointCoordinates);
+            plot.repaint();
+            //------------------------------------------------------------------
         };
 
         sensorDataReceiver.receive(dataPointStringConsumer);
-        // */
+        //----------------------------------------------------------------------
     }
 }

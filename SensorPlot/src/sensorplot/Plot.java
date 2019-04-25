@@ -5,6 +5,8 @@
  */
 package sensorplot;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.knowm.xchart.*;
 
 /**
@@ -13,14 +15,38 @@ import org.knowm.xchart.*;
  */
 public class Plot {
 
-    public void testPlot() {
-        double[] xData = new double[]{0.0, 1.0, 2.0};
-        double[] yData = new double[]{2.0, 1.0, 0.0};
+    XYChart chart;
+    SwingWrapper wrappedChart;
 
-// Create Chart
-        XYChart chart = QuickChart.getChart("Sample Chart", "X", "Y", "y(x)", xData, yData);
+    public Plot() {
+        chart = new XYChartBuilder().width(800).height(600).title("SensorPlot").xAxisTitle("Time").yAxisTitle("Coordinates").build();
+        List dummy = new ArrayList<Double>();
+        dummy.add(0.0);
 
-// Show it
-        new SwingWrapper(chart).displayChart();
+        chart.addSeries​("fx", dummy);
+        chart.addSeries​("fy", dummy);
+        chart.addSeries​("fz", dummy);
+        chart.addSeries​("mx", dummy);
+        chart.addSeries​("my", dummy);
+        chart.addSeries​("mz", dummy);
+
+        wrappedChart = new SwingWrapper(chart);
+    }
+
+    public void updateDatePointCoordinatesList(DataPointCoordinatesList dataPointCoordinatesList) {
+        chart.updateXYSeries("fx", dataPointCoordinatesList.timestamp, dataPointCoordinatesList.fx, null);
+        chart.updateXYSeries("fy", dataPointCoordinatesList.timestamp, dataPointCoordinatesList.fy, null);
+        chart.updateXYSeries("fz", dataPointCoordinatesList.timestamp, dataPointCoordinatesList.fz, null);
+        chart.updateXYSeries("mx", dataPointCoordinatesList.timestamp, dataPointCoordinatesList.mx, null);
+        chart.updateXYSeries("my", dataPointCoordinatesList.timestamp, dataPointCoordinatesList.my, null);
+        chart.updateXYSeries("mz", dataPointCoordinatesList.timestamp, dataPointCoordinatesList.mz, null);
+    }
+
+    public void display() {
+        wrappedChart.displayChart();
+    }
+
+    public void repaint() {
+        wrappedChart.repaintChart();
     }
 }
