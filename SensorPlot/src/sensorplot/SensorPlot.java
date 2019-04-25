@@ -27,6 +27,11 @@ public class SensorPlot {
 
     public void init() {
         System.out.println("SensorPlot.init()");
+        
+        Plot plot = new Plot();
+        plot.testPlot();
+        
+        /*
         sensorDataReceiver = SensorDataReceiver.createStandardReceiver();
         sensorDataReceiver.connect();
 
@@ -36,5 +41,6 @@ public class SensorPlot {
         };
 
         sensorDataReceiver.receive(dataPointStringConsumer);
+*/
     }
 }
