@@ -1,10 +1,16 @@
 <?xml version="1.0" ?>
 <cherrytree>
-	<node custom_icon_id="0" foreground="" is_bold="False" name="SensorPlot" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556177514.31" ts_lastsave="1556177738.08" unique_id="1">
+	<node custom_icon_id="0" foreground="" is_bold="False" name="SensorPlot" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556177514.31" ts_lastsave="1556178437.78" unique_id="1">
 		<rich_text>_________________________________
 Roboter initialisieren: drücken und halten; nochmal wechselt die Richtung
 Türe schließen immer!
 ALT+SHIFT+F für Einrückung
+
+</rich_text>
+		<rich_text foreground="#ffff00000000" scale="h3">Stundenzettel eintragen
+Git Push
+Roboter aus machen</rich_text>
+		<rich_text>
 _________________________________
 
 
@@ -23,8 +29,10 @@ _________________________________
 	//4. Verbessern
 		//-Verbindung schließen
 2) Plotten
-	1. XChart API anschauen
-		-Wie Library in Netbeans importieren? -&gt; sonst: Umstieg auf maven?
+	//1. XChart API anschauen
+		//-Wie Library in Netbeans importieren? -&gt; sonst: Umstieg auf maven?
+	Daten sammeln und übergeben
+	Daten in Echtzeit aktualisieren
 3) hinter ROS API verbergen (Messages)
 4) Asynchrone Kommunikation einbauen. Receive von SensorDataReceiver sollte in einem seperaten Thread landen
 

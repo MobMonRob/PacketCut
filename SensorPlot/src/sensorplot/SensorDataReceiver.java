@@ -18,7 +18,7 @@ public class SensorDataReceiver {
     //test: socat - TCP4:192.168.3.2:63351
     public static final String SENSOR_IP_ADRESS = "192.168.3.2";
     public static final int SENSOR_PORT = 63351;
-    static final int MESSAGE_SIZE = 71;
+    static final int MESSAGE_SIZE = 72;
 
     final String ipAdress;
     final int port;
