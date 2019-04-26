@@ -48,7 +48,7 @@ Roboter aus machen</rich_text>
 
 </rich_text>
 	</node>
-	<node custom_icon_id="0" foreground="#ff0000" is_bold="True" name="Aktuell" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556179378.83" ts_lastsave="1556276133.25" unique_id="3">
+	<node custom_icon_id="0" foreground="#ff0000" is_bold="True" name="Aktuell" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556179378.83" ts_lastsave="1556276381.02" unique_id="3">
 		<rich_text>//Spezifikation präzisieren.
 Bugfix, das Format betreffend mit Alignment, wie es vom Roboter kommt
 	//Ausprogrammieren
@@ -67,6 +67,9 @@ Bugfix, das Format betreffend mit Alignment, wie es vom Roboter kommt
 		<rich_text>
 Style übergeben für Zeit Formatierung
 	Date für Y erlaubt
+	</rich_text>
+		<rich_text link="webs https://github.com/knowm/XChart">https://github.com/knowm/XChart</rich_text>
+		<rich_text> suche: date
 
 Buttons für Verbinden, ... -&gt; asychnron, Threading!
 	</rich_text>
