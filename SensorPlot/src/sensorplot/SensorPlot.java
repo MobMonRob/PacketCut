@@ -14,41 +14,36 @@ import java.util.function.*;
  */
 public class SensorPlot {
 
-    SensorDataReceiver sensorDataReceiver;
+    Plot plot;
+    SensorDataProcessor sensorDataProcessor;
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
         SensorPlot sensorPlot = new SensorPlot();
         sensorPlot.init();
+    }
+
+    public SensorPlot() {
+        plot = new Plot();
+        sensorDataProcessor = new SensorDataProcessor();
     }
 
     public void init() {
         System.out.println("SensorPlot.init()");
 
-        //----------------------------------------------------------------------
-        Plot plot = new Plot();
-        DataPointCoordinatesList allDataPointCoordinates = new DataPointCoordinatesList();
         plot.display();
-        //----------------------------------------------------------------------
+        sensorDataProcessor.init();
+    }
 
-        //----------------------------------------------------------------------
-        sensorDataReceiver = SensorDataReceiver.createStandardReceiver();
-        sensorDataReceiver.connect();
+    public void loop() {
+        DataPointCoordinatesList allDataPointCoordinates = new DataPointCoordinatesList();
 
-        Consumer<String> dataPointStringConsumer = dataPointString -> {
-            DataPoint dataPoint = SensorDataParser.parse(dataPointString, OffsetDateTime.now());
-
-            //------------------------------------------------------------------
-            allDataPointCoordinates.addDataPoint(dataPoint);
+        while (true) {
+            allDataPointCoordinates.addDataPoint(sensorDataProcessor.getNextDataPoint());
             plot.updateDatePointCoordinatesList(allDataPointCoordinates);
             plot.repaint();
-            //------------------------------------------------------------------
-        };
-
-        sensorDataReceiver.receive(dataPointStringConsumer);
-        //----------------------------------------------------------------------
+        }
     }
 }

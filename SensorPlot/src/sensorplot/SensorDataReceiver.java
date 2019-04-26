@@ -7,7 +7,6 @@ package sensorplot;
 
 import java.io.*;
 import java.net.*;
-import java.util.function.*;
 
 /**
  *
@@ -18,7 +17,6 @@ public class SensorDataReceiver {
     //test: socat - TCP4:192.168.3.2:63351
     public static final String SENSOR_IP_ADRESS = "192.168.3.2";
     public static final int SENSOR_PORT = 63351;
-    static final int MESSAGE_SIZE = 72;
 
     final String ipAdress;
     final int port;
@@ -40,16 +38,20 @@ public class SensorDataReceiver {
         return new SensorDataReceiver();
     }
 
-    public void connect() {
+    public BufferedReader connect() {
         System.out.println("SensorDataReceiver.connect()");
+        BufferedReader socketReader = null;
 
         try {
             socket = new Socket(InetAddress.getByName(ipAdress), port);
             System.out.println("Connection succeeded!");
+            socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
             System.err.println("Connection failed!");
             System.err.println(e.toString());
         }
+
+        return socketReader;
     }
 
     public void deconnect() {
@@ -58,25 +60,6 @@ public class SensorDataReceiver {
             socket.close();
         } catch (IOException e) {
             System.err.println("deconnecting failed!");
-        }
-    }
-
-    /**
-     * caution: infinite loop
-     */
-    public void receive(Consumer<String> dataPointStringConsumer) {
-        System.out.println("SensorDataReceiver.receive()");
-
-        try {
-            BufferedReader socketReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            char[] buffer = new char[MESSAGE_SIZE];
-
-            while (true) {
-                socketReader.read(buffer, 0, MESSAGE_SIZE);
-                dataPointStringConsumer.accept(String.valueOf(buffer));
-            }
-        } catch (IOException e) {
-            System.err.println("Receiving failed!");
         }
     }
 }

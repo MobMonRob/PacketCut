@@ -16,23 +16,25 @@ import java.util.stream.Collectors;
  *
  * @author MobMonRob
  */
-public class SensorDataParser {
+public class SensorDataPointParser {
 
     static final Pattern COORDINATE_FORMAT = Pattern.compile("-?[0-9]+.{1}[0-9]+");
-    
-    private SensorDataParser() {
-        
+    public static final int MAX_DATA_POINT_STRING_SIZE = 83;
+
+    private SensorDataPointParser() {
+
     }
 
     public static DataPoint parse(String dataPointString, OffsetDateTime now) {
         ArrayList<String> stringCoordinates = new ArrayList();
-        
+
         Matcher coordinateMatcher = COORDINATE_FORMAT.matcher(dataPointString);
 
         while (coordinateMatcher.find()) {
             stringCoordinates.add(dataPointString.substring(coordinateMatcher.start(), coordinateMatcher.end()));
         }
-        assert stringCoordinates.size() == 6;
+        //assert stringCoordinates.size() == 6;
+        System.out.println(dataPointString);
 
         List<Double> dc = stringCoordinates.stream().map(s -> Double.parseDouble(s)).collect(Collectors.toList()); //doubleCoordinates
 
