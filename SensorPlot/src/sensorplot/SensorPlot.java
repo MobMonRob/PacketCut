@@ -5,9 +5,6 @@
  */
 package sensorplot;
 
-import java.time.OffsetDateTime;
-import java.util.function.*;
-
 /**
  *
  * @author MobMonRob
