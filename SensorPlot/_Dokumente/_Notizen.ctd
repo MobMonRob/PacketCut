@@ -48,7 +48,7 @@ Roboter aus machen</rich_text>
 
 </rich_text>
 	</node>
-	<node custom_icon_id="0" foreground="#ff0000" is_bold="True" name="Aktuell" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556179378.83" ts_lastsave="1556290116.73" unique_id="3">
+	<node custom_icon_id="0" foreground="#ff0000" is_bold="True" name="Aktuell" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556179378.83" ts_lastsave="1556358750.79" unique_id="3">
 		<rich_text>//Spezifikation präzisieren.
 
 Bugfix, das Format betreffend mit Alignment, wie es vom Roboter kommt
@@ -61,6 +61,11 @@ Einfach ein String Reader machen und zwei Strings entsprechend einfach immer sch
 --&gt;Ist schneller zu bauen als Char Buffer Klasse wie überlegt
 
 java regex pattern tester
+
+Wenn zwei matches gefunden, einfach beim nächsten Aufruf von getNext... keine neuen Daten in Buffer schreiben.
+Das ist spätestens dann der Fall, wenn der Buffer doppelte Länge der maximalen Länge einer Nachricht erreicht hat.
+Darf prüfen, bevor neuer Wert geholt wird.
+Zur Sicherheit nochmal ausrechnen
 
 
 </rich_text>
