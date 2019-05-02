@@ -32,6 +32,7 @@ public class SensorPlot {
 
         plot.display();
         sensorDataProcessor.init();
+        this.loop();
     }
 
     public void loop() {

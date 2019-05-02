@@ -35,6 +35,11 @@ public class SensorDataPointParser {
         }
         //assert stringCoordinates.size() == 6;
         System.out.println(dataPointString);
+        if (dataPointString.length() > 75) {
+            return null;
+        }
+        //
+        
 
         List<Double> dc = stringCoordinates.stream().map(s -> Double.parseDouble(s)).collect(Collectors.toList()); //doubleCoordinates
 

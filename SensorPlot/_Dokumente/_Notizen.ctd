@@ -48,12 +48,18 @@ Roboter aus machen</rich_text>
 
 </rich_text>
 	</node>
-	<node custom_icon_id="0" foreground="#ff0000" is_bold="True" name="Aktuell" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556179378.83" ts_lastsave="1556358750.79" unique_id="3">
-		<rich_text>//Spezifikation präzisieren.
+	<node custom_icon_id="0" foreground="#ff0000" is_bold="True" name="Aktuell" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556179378.83" ts_lastsave="1556788923.04" unique_id="3">
+		<rich_text foreground="#ffff00000000" scale="h3">Stundennachweis April Oliver fragen Marcus geben
+Fragen, ob MI, Do arbeiten immer</rich_text>
+		<rich_text>
+____________________________
+
+
+//Spezifikation präzisieren.
 
 Bugfix, das Format betreffend mit Alignment, wie es vom Roboter kommt
 	//Ausprogrammieren
-	Funktionierend machen
+	(09:40) Funktionierend machen
 	SensorDataProcessor getNextDataPoint() vernüntig aufteilien
 Weitere Idee:
 Einfach ein String Reader machen und zwei Strings entsprechend einfach immer schneiden und konkatenieren.
@@ -66,6 +72,10 @@ Wenn zwei matches gefunden, einfach beim nächsten Aufruf von getNext... keine n
 Das ist spätestens dann der Fall, wenn der Buffer doppelte Länge der maximalen Länge einer Nachricht erreicht hat.
 Darf prüfen, bevor neuer Wert geholt wird.
 Zur Sicherheit nochmal ausrechnen
+
+
+Parser Länge check wieder rein machen
+(11:20) Für Debugging einfach Daten besorgen
 
 
 </rich_text>
@@ -89,6 +99,10 @@ Buttons für Verbinden, ... -&gt; asychnron, Threading!
 		<rich_text>
 
 Mockup für Daten bauen
+
+JavaFx für GUI:  </rich_text>
+		<rich_text link="webs http://jaxcenter.de/java-tutorial-javafx-53878">http://jaxcenter.de/java-tutorial-javafx-53878</rich_text>
+		<rich_text>
 
 </rich_text>
 		<rich_text underline="single">Schieberegler 1</rich_text>
