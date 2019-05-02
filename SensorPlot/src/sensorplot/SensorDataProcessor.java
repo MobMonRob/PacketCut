@@ -43,7 +43,7 @@ public class SensorDataProcessor {
         String nextDataPointString = "";
 
         try {
-            if (twoOrMoreDataPoints.length() < dataPointBuffer.length) {
+            if (twoOrMoreDataPoints.length() < SensorDataPointParser.MAX_DATA_POINT_STRING_SIZE) {
                 dataReader.read(dataPointBuffer, 0, dataPointBuffer.length);
 
                 if (!DEBUG) {
