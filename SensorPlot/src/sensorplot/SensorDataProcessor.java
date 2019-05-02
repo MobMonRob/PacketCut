@@ -24,11 +24,15 @@ public class SensorDataProcessor {
     CharBuffer dataPointBuffer;
     String twoOrMoreDataPoints;
     int DBG_COUNT = 0;
+    FakeDataSource fakeDataSource;
+    boolean DEBUG = false;
 
     public SensorDataProcessor() {
         dataReceiver = SensorDataReceiver.createStandardReceiver();
         dataPointBuffer = CharBuffer.allocate(SensorDataPointParser.MAX_DATA_POINT_STRING_SIZE);
         twoOrMoreDataPoints = "";
+
+        fakeDataSource = new FakeDataSource();
     }
 
     public void init() {
@@ -37,7 +41,7 @@ public class SensorDataProcessor {
 
     public DataPoint getNextDataPoint() {
         System.out.println("SensorDataProcessor.getNextDataPoint()");
-        
+
         DBG_COUNT++;
 
         String nextDataPointString = "";
@@ -47,7 +51,11 @@ public class SensorDataProcessor {
                 dataPointBuffer.clear();
                 dataReader.read(dataPointBuffer.array(), 0, dataPointBuffer.limit());
 
-                twoOrMoreDataPoints = twoOrMoreDataPoints.concat(dataPointBuffer.toString());
+                if (!DEBUG) {
+                    twoOrMoreDataPoints = twoOrMoreDataPoints.concat(dataPointBuffer.toString());
+                } else {
+                    twoOrMoreDataPoints = twoOrMoreDataPoints + fakeDataSource.getNext();
+                }
             }
 
             Matcher wholeCoordinateMatcher = WHOLE_COORDINATE_FORMAT.matcher(twoOrMoreDataPoints);
@@ -59,13 +67,11 @@ public class SensorDataProcessor {
         } catch (IOException e) {
             System.err.println("Reading next Characters of the sensor data failed!");
         }
-
         DataPoint dataPoint;
+
+        System.out.println(nextDataPointString);
+
         dataPoint = SensorDataPointParser.parse(nextDataPointString, OffsetDateTime.now());
-        
-        if (dataPoint == null) {
-            System.out.println("blub");
-        }
 
         return dataPoint;
 

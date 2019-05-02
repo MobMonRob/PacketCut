@@ -33,13 +33,7 @@ public class SensorDataPointParser {
         while (coordinateMatcher.find()) {
             stringCoordinates.add(dataPointString.substring(coordinateMatcher.start(), coordinateMatcher.end()));
         }
-        //assert stringCoordinates.size() == 6;
-        System.out.println(dataPointString);
-        if (dataPointString.length() > 75) {
-            return null;
-        }
-        //
-        
+        assert stringCoordinates.size() == 6;
 
         List<Double> dc = stringCoordinates.stream().map(s -> Double.parseDouble(s)).collect(Collectors.toList()); //doubleCoordinates
 
