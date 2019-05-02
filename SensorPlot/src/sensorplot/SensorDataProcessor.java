@@ -7,7 +7,6 @@ package sensorplot;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.CharBuffer;
 import java.time.OffsetDateTime;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -21,15 +20,14 @@ public class SensorDataProcessor {
     static final Pattern WHOLE_COORDINATE_FORMAT = Pattern.compile("\\(.+?\\)");
     SensorDataReceiver dataReceiver;
     BufferedReader dataReader;
-    CharBuffer dataPointBuffer;
+    char[] dataPointBuffer;
     String twoOrMoreDataPoints;
-    int DBG_COUNT = 0;
     FakeDataSource fakeDataSource;
     boolean DEBUG = false;
 
     public SensorDataProcessor() {
         dataReceiver = SensorDataReceiver.createStandardReceiver();
-        dataPointBuffer = CharBuffer.allocate(SensorDataPointParser.MAX_DATA_POINT_STRING_SIZE);
+        dataPointBuffer = new char[SensorDataPointParser.MAX_DATA_POINT_STRING_SIZE * 6]; //why? maybe: to slow
         twoOrMoreDataPoints = "";
 
         fakeDataSource = new FakeDataSource();
@@ -42,17 +40,14 @@ public class SensorDataProcessor {
     public DataPoint getNextDataPoint() {
         System.out.println("SensorDataProcessor.getNextDataPoint()");
 
-        DBG_COUNT++;
-
         String nextDataPointString = "";
 
         try {
-            if (twoOrMoreDataPoints.length() <= SensorDataPointParser.MAX_DATA_POINT_STRING_SIZE) {
-                dataPointBuffer.clear();
-                dataReader.read(dataPointBuffer.array(), 0, dataPointBuffer.limit());
+            if (twoOrMoreDataPoints.length() < dataPointBuffer.length) {
+                dataReader.read(dataPointBuffer, 0, dataPointBuffer.length);
 
                 if (!DEBUG) {
-                    twoOrMoreDataPoints = twoOrMoreDataPoints.concat(dataPointBuffer.toString());
+                    twoOrMoreDataPoints = twoOrMoreDataPoints + String.valueOf(dataPointBuffer);
                 } else {
                     twoOrMoreDataPoints = twoOrMoreDataPoints + fakeDataSource.getNext();
                 }
