@@ -27,14 +27,14 @@ public class SensorDataProcessor {
 
     public SensorDataProcessor() {
         dataReceiver = SensorDataReceiver.createStandardReceiver();
-        dataPointBuffer = new char[SensorDataPointParser.MAX_DATA_POINT_STRING_SIZE * 6]; //why? maybe: to slow
+        dataPointBuffer = new char[SensorDataPointParser.MAX_DATA_POINT_STRING_SIZE];
         twoOrMoreDataPoints = "";
 
         fakeDataSource = new FakeDataSource();
     }
 
     public void init() {
-        dataReader = dataReceiver.connect();
+        dataReader = new BufferedReader(dataReceiver.connect(), dataPointBuffer.length);
     }
 
     public DataPoint getNextDataPoint() {
@@ -44,23 +44,30 @@ public class SensorDataProcessor {
 
         try {
             if (twoOrMoreDataPoints.length() < SensorDataPointParser.MAX_DATA_POINT_STRING_SIZE) {
+                Thread.sleep(20); //why does the dataReader not wait?
                 dataReader.read(dataPointBuffer, 0, dataPointBuffer.length);
 
                 if (!DEBUG) {
-                    twoOrMoreDataPoints = twoOrMoreDataPoints + String.valueOf(dataPointBuffer);
+                    twoOrMoreDataPoints = twoOrMoreDataPoints + String.valueOf(dataPointBuffer, 0, dataPointBuffer.length);
                 } else {
                     twoOrMoreDataPoints = twoOrMoreDataPoints + fakeDataSource.getNext();
                 }
             }
 
             Matcher wholeCoordinateMatcher = WHOLE_COORDINATE_FORMAT.matcher(twoOrMoreDataPoints);
-            wholeCoordinateMatcher.find();
+            boolean hasFound = wholeCoordinateMatcher.find();
+
+            if (!hasFound) {
+                System.out.println("has nothing found!");
+            }
 
             nextDataPointString = twoOrMoreDataPoints.substring(wholeCoordinateMatcher.start(), wholeCoordinateMatcher.end());
             twoOrMoreDataPoints = twoOrMoreDataPoints.substring(wholeCoordinateMatcher.end(), twoOrMoreDataPoints.length());
 
         } catch (IOException e) {
             System.err.println("Reading next Characters of the sensor data failed!");
+        } catch (InterruptedException e) {
+            System.err.println("Interrupted while waiting!");
         }
         DataPoint dataPoint;
 
