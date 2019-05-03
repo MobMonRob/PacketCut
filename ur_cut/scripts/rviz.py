@@ -73,10 +73,50 @@ class rvizCollision(object):
 
     def addGround(self):
         return self.add_box("groundPlate", position=(0, 0, -0.01), box_size=(2, 2, 0.01), timeout=10)
+
+    def addRoof(self):
+        return self.add_box("roofPlate", position=(0, 0, 0.9), box_size=(2, 2, 0.01), timeout=10)
+
+    def addBackWall(self):
+        return self.add_box("backWall", position=(0, -0.5, 0.45), box_size=(2, 0.01, 0.9), timeout=10)
+
+    def addCutStation(self):
+        return self.add_box("cutStation", position=(0, 0.7, 0.4), box_size=(2, 1, 0.01), timeout=10)
+
+    def addCutter(self):
+        return self.add_box("cutter", position=(0, 0.8, 0.8), box_size=(2, 1, 0.01), timeout=10)
         
 
     def removeGround(self):
         return self.remove_box("groundPlate")
+
+    def removeRoof(self):
+        return self.remove_box("roofPlate")
+
+    def removeBackWall(self):
+        return self.remove_box("backWall")
+
+    def removeCutStation(self):
+        return self.remove_box("cutStation")
+
+    def removeCutter(self):
+        return self.remove_box("cutter")
+
+
+    def addCollisionObjects(self):
+        self.addGround()
+        self.addBackWall()
+        self.addRoof()
+        self.addCutStation()
+        self.addCutter()
+
+    def removeCollisionObjects(self):
+        self.removeGround()
+        self.removeBackWall()
+        self.removeRoof()
+        self.removeCutStation()
+        self.removeCutter()
+
 
     def add_box(self, name = "box", position = (0, 0, 0), box_size = (1, 1, 1), timeout=4):
         ## Adding Objects to the Planning Scene

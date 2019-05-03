@@ -33,6 +33,8 @@ print "============ End effector: %s" % eef_link
 group_names = robot.get_group_names()
 print "============ Robot Groups:", robot.get_group_names()
 
+print(group.get_goal_tolerance())
+
 # Sometimes for debugging it is useful to print the entire state of the
 # robot:
 #print "============ Printing robot state"
