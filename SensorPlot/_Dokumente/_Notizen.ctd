@@ -48,9 +48,9 @@ Roboter aus machen</rich_text>
 
 </rich_text>
 	</node>
-	<node custom_icon_id="0" foreground="#ff0000" is_bold="True" name="Aktuell" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556179378.83" ts_lastsave="1556795001.21" unique_id="3">
-		<rich_text foreground="#ffff00000000" scale="h3">Stundennachweis April Oliver fragen Marcus geben
-Fragen, ob MI, Do arbeiten immer</rich_text>
+	<node custom_icon_id="0" foreground="#ff0000" is_bold="True" name="Aktuell" prog_lang="custom-colors" readonly="False" tags="" ts_creation="1556179378.83" ts_lastsave="1556867021.92" unique_id="3">
+		<rich_text foreground="#ffff00000000" scale="h2">Fragen, ob Mi, Do arbeiten immer
+Mensa!</rich_text>
 		<rich_text>
 ____________________________
 
@@ -61,6 +61,9 @@ Bugfix, das Format betreffend mit Alignment, wie es vom Roboter kommt
 	//Ausprogrammieren
 	//Funktionierend machen
 	SensorDataProcessor getNextDataPoint() vernüntig aufteilien
+
+Socket Event API?
+Threading weiter machen.
 
 
 </rich_text>
