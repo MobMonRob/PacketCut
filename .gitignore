@@ -1,1 +1,5 @@
 *.pyc
+/SensorPlot/nbproject/private/
+/SensorPlot/build/
+*.ctd~*
+/SensorPlot/dist/
