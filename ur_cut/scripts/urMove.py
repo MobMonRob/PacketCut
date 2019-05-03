@@ -97,7 +97,7 @@ class urMove(object):
         pose_goal = geometry_msgs.msg.Pose()
         pose_goal = self.group.get_current_pose().pose
 
-        self.group.
+        #self.group.
         pose_goal.position.x = -0.4
         pose_goal.position.y = 0.4
         pose_goal.position.z = 0.5
@@ -223,16 +223,18 @@ class urMove(object):
         self.display_trajectory = moveit_msgs.msg.DisplayTrajectory()
         self.display_trajectory.trajectory_start = self.robot.get_current_state()
         self.display_trajectory.trajectory.append(plan)
-        # Publish
+        
+	# Publish
         self.display_trajectory_publisher.publish(self.display_trajectory)
-
-        newPlan = self.group.retime_trajectory(fraction, plan, 0.05)
+	#newPose = self.group.get_current_pose().pose
+	help = self.robot.get_current_state()
+        newPlan = self.group.retime_trajectory(help,plan, 0.1)
 
         # time.sleep(5)
         self.group.execute(newPlan, wait=False)
-        time.sleep(1)
+        #time.sleep(1)
         # Calling `stop()` ensures that there is no residual movement
-        self.group.stop()
+        #self.group.stop()
         # # It is always good to clear your targets after planning with poses.
         # # Note: there is no equivalent function for clear_joint_value_targets()
         # self.group.clear_pose_targets()
