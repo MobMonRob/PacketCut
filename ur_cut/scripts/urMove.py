@@ -126,6 +126,7 @@ class urMove(object):
             time.sleep(0.2)
             pass
         
+        
         refZ = (refZ/10)+2
         print "Schwellwert: "
         print(refZ)
