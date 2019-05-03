@@ -13,6 +13,7 @@ from moveit_commander.conversions import pose_to_list
 moveit_commander.roscpp_initialize(sys.argv)
 rospy.init_node('schneiden1',anonymous=True)
 
+
 robot = moveit_commander.RobotCommander()
 scene = moveit_commander.PlanningSceneInterface()
 group_name = "manipulator"
