@@ -48,6 +48,7 @@ class urMove(object):
         group_name = "manipulator"
         group = moveit_commander.MoveGroupCommander(group_name)
         
+        
 
         ## We create a `DisplayTrajectory`_ publisher which is used later to publish
         ## trajectories for RViz to visualize:
@@ -56,8 +57,6 @@ class urMove(object):
                                                     queue_size=20)
 
         
-        ## Getting Basic Information
-        ## ^^^^^^^^^^^^^^^^^^^^^^^^^
         # We can get the name of the reference frame for this robot:
         planning_frame = group.get_planning_frame()
 
@@ -89,6 +88,7 @@ class urMove(object):
 
     # Deconstructor for the urMove - Class 
     def __del__(self):
+        return
         
 
     # Start position for the robot
@@ -97,9 +97,9 @@ class urMove(object):
         pose_goal = geometry_msgs.msg.Pose()
         pose_goal = self.group.get_current_pose().pose
 
-
-        pose_goal.position.x = -0.3
-        pose_goal.position.y = 0.5
+        self.group.
+        pose_goal.position.x = -0.4
+        pose_goal.position.y = 0.4
         pose_goal.position.z = 0.5
 
         pose_goal.orientation.x = 0.0
@@ -151,7 +151,7 @@ class urMove(object):
         ## end-effector:
         pose_goal = geometry_msgs.msg.Pose()
         pose_goal = self.group.get_current_pose().pose
-
+        
         # setting the new position
         pose_goal.position.x += posX
         pose_goal.position.y += posY
@@ -159,7 +159,7 @@ class urMove(object):
         self.group.set_pose_target(pose_goal)
 
         #TODO Test auf threading und Execution
-        self.group.go(wait=False)
+        self.group.go(wait=True)
 
         ## Now, we call the planner to compute the plan and execute it.
         # plan = group.go(wait=True)
@@ -200,6 +200,42 @@ class urMove(object):
         # It is always good to clear your targets after planning with poses.
         # Note: there is no equivalent function for clear_joint_value_targets()
         # group.clear_pose_targets()
+
+    def toWaypointRelative(self, posX = None, posY = None, posZ = None):
+        waypoints=[]
+        wpose = copy.deepcopy(self.group.get_current_pose().pose)
+        
+        wpose.position.x += posX
+        wpose.position.y += posY
+        wpose.position.z += posZ
+        
+        waypoints.append(copy.deepcopy(wpose))
+
+        # We want the Cartesian path to be interpolated at a resolution of 1 cm
+        # which is why we will specify 0.01 as the eef_step in Cartesian
+        # translation.  We will disable the jump threshold by setting it to 0.0 disabling:
+        (plan, fraction) = self.group.compute_cartesian_path(
+                                        waypoints,   # waypoints to follow
+                                        0.01,        # eef_step
+                                        0.0)         # jump_threshold
+
+
+        self.display_trajectory = moveit_msgs.msg.DisplayTrajectory()
+        self.display_trajectory.trajectory_start = self.robot.get_current_state()
+        self.display_trajectory.trajectory.append(plan)
+        # Publish
+        self.display_trajectory_publisher.publish(self.display_trajectory)
+
+        newPlan = self.group.retime_trajectory(fraction, plan, 0.05)
+
+        # time.sleep(5)
+        self.group.execute(newPlan, wait=False)
+        time.sleep(1)
+        # Calling `stop()` ensures that there is no residual movement
+        self.group.stop()
+        # # It is always good to clear your targets after planning with poses.
+        # # Note: there is no equivalent function for clear_joint_value_targets()
+        # self.group.clear_pose_targets()
  
 
     pass

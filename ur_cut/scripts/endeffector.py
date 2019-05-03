@@ -20,10 +20,11 @@ class endeffector(object):
 
         get_states()
         set_states()
-        self.grab(False)
+        self.open()
 
 
     def __del__(self):
+        return
 
     def grab(self):
         set_digital_out(2, True)
