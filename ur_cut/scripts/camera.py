@@ -11,15 +11,28 @@ class Camera(object):
     def __init__(self):
         super(Camera, self).__init__()
 
-        rospy.Subscriber("/royale_camera_driver/point_cloud", PointCloud2, self.callback)
+        self.newData = False
         return
 
     def callback(self, msg):  
         self.pointCloud = msg
+        self.newData = True
         return
 
+# Call this Method to get the distance to an object infront of the Camera
     def getDistance(self):
-        return self.searchForDistanceInPointCloud()
+        camera_node = rospy.Subscriber("/royale_camera_driver/point_cloud", PointCloud2, self.callback)
+        
+        # Wait till callback delivered new data
+        while self.newData == False:
+            # Do nothing
+            pass
+
+        self.newData = False
+
+        x, y, z = self.searchForDistanceInPointCloud()
+        camera_node.unregister()
+        return z
     
     def searchForDistanceInPointCloud(self):
         
