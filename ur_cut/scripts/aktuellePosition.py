@@ -18,7 +18,7 @@ robot = moveit_commander.RobotCommander()
 scene = moveit_commander.PlanningSceneInterface()
 group_name = "manipulator"
 group = moveit_commander.MoveGroupCommander(group_name)
-scale = 1
+
 
 display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',moveit_msgs.msg.DisplayTrajectory,queue_size=20)
 
@@ -38,43 +38,9 @@ print(group.get_goal_tolerance())
 
 # Sometimes for debugging it is useful to print the entire state of the
 # robot:
-#print "============ Printing robot state"
-#print robot.get_current_state()
-#print ""
-
-####################
-#Einstellen der Gelenkwinkel
-####################
-
-# We can get the joint values from the group and adjust some of the values:
-# joint_goal = group.get_current_joint_values()
-# joint_goal[0] = 0
-# joint_goal[1] = -pi/4
-# joint_goal[2] = 0
-# joint_goal[3] = -pi/2
-# joint_goal[4] = 0
-# joint_goal[5] = pi/3
-# joint_goal[6] = 0
-
-####################
-#Einstellen der Koordinaten
-####################
-
-# pose_goal = geometry_msgs.msg.Pose()
-
-# print geometry_msgs.msg.Pose()
-
-# pose_goal.orientation.w = 0.0
-# pose_goal.position.x = -0.2
-# pose_goal.position.y = 0.0
-# pose_goal.position.z = 0.0
-# group.set_pose_target(pose_goal)
-
-
-######################
-# Carthesian Path
-######################
-
+print "============ Printing robot state"
+print robot.get_current_state()
+print ""
 
 
 wpose = group.get_current_pose().pose

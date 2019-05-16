@@ -89,13 +89,12 @@ class urMove(object):
         return
         
 
-    # Start position for the robot
-    def toStartPosition(self):
+    # Start position for the robot in PoseGoal
+    def toInitPosition(self):
 
         pose_goal = geometry_msgs.msg.Pose()
         pose_goal = self.group.get_current_pose().pose
 
-        #self.group.
         pose_goal.position.x = -0.4
         pose_goal.position.y = 0.4
         pose_goal.position.z = 0.48
@@ -126,35 +125,22 @@ class urMove(object):
             time.sleep(0.2)
             pass
         
-        
-        refZ = (refZ/10)+2
-        print "Schwellwert: "
-        print(refZ)
-        refState = self.group.get_current_pose().pose
-        refState = round(refState.position.x, 5) + round(refState.position.y, 5) + round(refState.position.z, 5)
-        time.sleep(1)
+        refZ = (refZ/10)
+
         while True:
             fx,fy,fz = self.forceSensor.getForce()
             print (fz)
-            #TODO Value from Config-File
             if fz <= (refZ - 8):
-                print ("Barriere erkannt")
+                print "Barriere erkannt"
+                print fz
                 print "Schwellwert: "
-                print(refZ)
+                print refZ
                 self.group.stop()
                 break
-            newState = self.group.get_current_pose().pose
-            newState = round(newState.position.x, 5) + round(newState.position.y, 5) + round(newState.position.z, 5)
-            print newState
-            # if (refState == newState):
-            #     return -1
-            # else:
-            #     refState = newState
-            #     pass
             pass
 
     # Function to move the Robot in a relative position
-    def toPoseGoalRelative(self, posX = None, posY = None, posZ = None, force = False):
+    def toPoseGoalRelative(self, posX=0.0, posY=0.0, posZ=0.0, force = False):
 
         ## Planning to a Pose Goal
         ## ^^^^^^^^^^^^^^^^^^^^^^^
@@ -207,9 +193,7 @@ class urMove(object):
                 pass
             pass
 
-    def toWaypointRelative(self, posX = None, posY = None, posZ = None, speed = 1.0, force = False):
-
-
+    def toWaypointRelative(self, posX = 0.0, posY = 0.0, posZ = 0.0, speed = 1.0, force = False):
         waypoints=[]
         wpose = copy.deepcopy(self.group.get_current_pose().pose)
         
@@ -239,11 +223,43 @@ class urMove(object):
 
         self.group.execute(newPlan, wait=not force)
         
-        if force == True:
-            if self.stopPoseGoalByForce() == -1:
-                print "Zu weit gefahren kein widerstand"
-                pass
-            pass
 
+    def toWaypointAbsolute(self, posX = None, posY = None, posZ = None, speed = 1.0, force = False):
+        waypoints=[]
+        wpose = copy.deepcopy(self.group.get_current_pose().pose)
+        
+        wpose.position.x = posX
+        wpose.position.y = posY
+        wpose.position.z = posZ
+        
+        waypoints.append(copy.deepcopy(wpose))
+
+        # We want the Cartesian path to be interpolated at a resolution of 1 cm
+        # which is why we will specify 0.01 as the eef_step in Cartesian
+        # translation.  We will disable the jump threshold by setting it to 0.0 disabling:
+        (plan, fraction) = self.group.compute_cartesian_path(
+                                        waypoints,   # waypoints to follow
+                                        0.01,        # eef_step
+                                        0.0)         # jump_threshold
+
+
+        self.display_trajectory = moveit_msgs.msg.DisplayTrajectory()
+        self.display_trajectory.trajectory_start = self.robot.get_current_state()
+        self.display_trajectory.trajectory.append(plan)
+        
+	    # Publish
+        self.display_trajectory_publisher.publish(self.display_trajectory)
+
+        newPlan = self.group.retime_trajectory(self.robot.get_current_state(), plan, speed)
+
+        self.group.execute(newPlan, wait=not force)
+        
+    
+    def toStartPosition(self):
+        wpose = copy.deepcopy(self.group.get_current_pose().pose)
+        distance = wpose.position.y - 0.4
+        distance = distance*-1
+        self.toWaypointRelative(posY=distance, speed=0.5, force=False)
+        self.toWaypointAbsolute(posX=-0.4, posY=0.4, posZ=0.48, speed=0.5, force=False)
 
     pass
