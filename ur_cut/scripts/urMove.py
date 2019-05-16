@@ -48,8 +48,7 @@ class urMove(object):
         group_name = "manipulator"
         group = moveit_commander.MoveGroupCommander(group_name)
         
-        
-
+    
         ## We create a `DisplayTrajectory`_ publisher which is used later to publish
         ## trajectories for RViz to visualize:
         display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
@@ -73,7 +72,6 @@ class urMove(object):
         rviz = rvizCollision(robot, scene, group)
         
         
-
         # Misc variables
         self.robot = robot
         self.scene = scene
@@ -91,16 +89,15 @@ class urMove(object):
         return
         
 
-    # Start position for the robot
-    def toStartPosition(self):
+    # Start position for the robot in PoseGoal
+    def toInitPosition(self):
 
         pose_goal = geometry_msgs.msg.Pose()
         pose_goal = self.group.get_current_pose().pose
 
-        #self.group.
         pose_goal.position.x = -0.4
         pose_goal.position.y = 0.4
-        pose_goal.position.z = 0.5
+        pose_goal.position.z = 0.48
 
         pose_goal.orientation.x = 0.0
         pose_goal.orientation.y = 0.0
@@ -121,29 +118,29 @@ class urMove(object):
     # Function for getting information about the ForceTorque Sensor 
     # and stop the Robot after fz is over 4N 
     def stopPoseGoalByForce(self):
-        refX, refY, refZ = self.forceSensor.getForce()
-        print "Schwellwert: "
-        print(refZ)
+        refX, refY, refZ = 0, 0, 0
+        for i in range(10):
+            refXTemp, refYTemp, refZTemp = self.forceSensor.getForce()
+            refZ += refZTemp
+            time.sleep(0.2)
+            pass
+        
+        refZ = (refZ/10)
+
         while True:
             fx,fy,fz = self.forceSensor.getForce()
             print (fz)
-            #TODO Value from Config-File
-            if fz <= (refZ - 4):
-                print ("Barriere erkannt")
+            if fz <= (refZ - 8):
+                print "Barriere erkannt"
+                print fz
+                print "Schwellwert: "
+                print refZ
                 self.group.stop()
-                break   
+                break
             pass
 
     # Function to move the Robot in a relative position
-    def toPoseGoalRelative(self, posX = None, posY = None, posZ = None, force = False):
-
-        # If you will use the force sensor to stop the robot,
-        # the thread will start to get information of the sensor
-        if force == True:
-            threadForceTorque = threading.Thread(target=self.stopPoseGoalByForce)
-            threadForceTorque.start()
-            pass
-        
+    def toPoseGoalRelative(self, posX=0.0, posY=0.0, posZ=0.0, force = False):
 
         ## Planning to a Pose Goal
         ## ^^^^^^^^^^^^^^^^^^^^^^^
@@ -159,24 +156,18 @@ class urMove(object):
         self.group.set_pose_target(pose_goal)
 
         #TODO Test auf threading und Execution
-        self.group.go(wait=True)
+        self.group.go(wait=not force)
 
-        ## Now, we call the planner to compute the plan and execute it.
-        # plan = group.go(wait=True)
-        # Calling `stop()` ensures that there is no residual movement
-        # group.stop()
-        # It is always good to clear your targets after planning with poses.
-        # Note: there is no equivalent function for clear_joint_value_targets()
-        # group.clear_pose_targets()
+        # If you will use the force sensor to stop the robot,
+        # the thread will start to get information of the sensor
+        if force == True:
+            if self.stopPoseGoalByForce() == -1:
+                print "Zu weit gefahren kein widerstand"
+                pass
+            pass
    
     # Function to move the Robot in an absolute position
     def toPoseGoalAbsolute(self, posX = None, posY = None, posZ = None, force = False):
-
-        if force == True:
-            threadForceTorque = threading.Thread(target=self.stopPoseGoalByForce)
-            threadForceTorque.start()
-            pass
-        
 
         ## Planning to a Pose Goal
         ## ^^^^^^^^^^^^^^^^^^^^^^^
@@ -184,24 +175,25 @@ class urMove(object):
         ## end-effector:
         pose_goal = geometry_msgs.msg.Pose()
         pose_goal = self.group.get_current_pose().pose
-
+        
+        # setting the new position
         pose_goal.position.x = posX
         pose_goal.position.y = posY
         pose_goal.position.z = posZ
         self.group.set_pose_target(pose_goal)
 
         #TODO Test auf threading und Execution
-        self.group.go(wait=False)
+        self.group.go(wait=not force)
 
-        ## Now, we call the planner to compute the plan and execute it.
-        # plan = group.go(wait=True)
-        # Calling `stop()` ensures that there is no residual movement
-        # group.stop()
-        # It is always good to clear your targets after planning with poses.
-        # Note: there is no equivalent function for clear_joint_value_targets()
-        # group.clear_pose_targets()
+        # If you will use the force sensor to stop the robot,
+        # the thread will start to get information of the sensor
+        if force == True:
+            if self.stopPoseGoalByForce() == -1:
+                print "Zu weit gefahren kein widerstand"
+                pass
+            pass
 
-    def toWaypointRelative(self, posX = None, posY = None, posZ = None):
+    def toWaypointRelative(self, posX = 0.0, posY = 0.0, posZ = 0.0, speed = 1.0, force = False):
         waypoints=[]
         wpose = copy.deepcopy(self.group.get_current_pose().pose)
         
@@ -224,20 +216,50 @@ class urMove(object):
         self.display_trajectory.trajectory_start = self.robot.get_current_state()
         self.display_trajectory.trajectory.append(plan)
         
-	# Publish
+	    # Publish
         self.display_trajectory_publisher.publish(self.display_trajectory)
-	#newPose = self.group.get_current_pose().pose
-	help = self.robot.get_current_state()
-        newPlan = self.group.retime_trajectory(help,plan, 0.1)
 
-        # time.sleep(5)
-        self.group.execute(newPlan, wait=False)
-        #time.sleep(1)
-        # Calling `stop()` ensures that there is no residual movement
-        #self.group.stop()
-        # # It is always good to clear your targets after planning with poses.
-        # # Note: there is no equivalent function for clear_joint_value_targets()
-        # self.group.clear_pose_targets()
- 
+        newPlan = self.group.retime_trajectory(self.robot.get_current_state(), plan, speed)
+
+        self.group.execute(newPlan, wait=not force)
+        
+
+    def toWaypointAbsolute(self, posX = None, posY = None, posZ = None, speed = 1.0, force = False):
+        waypoints=[]
+        wpose = copy.deepcopy(self.group.get_current_pose().pose)
+        
+        wpose.position.x = posX
+        wpose.position.y = posY
+        wpose.position.z = posZ
+        
+        waypoints.append(copy.deepcopy(wpose))
+
+        # We want the Cartesian path to be interpolated at a resolution of 1 cm
+        # which is why we will specify 0.01 as the eef_step in Cartesian
+        # translation.  We will disable the jump threshold by setting it to 0.0 disabling:
+        (plan, fraction) = self.group.compute_cartesian_path(
+                                        waypoints,   # waypoints to follow
+                                        0.01,        # eef_step
+                                        0.0)         # jump_threshold
+
+
+        self.display_trajectory = moveit_msgs.msg.DisplayTrajectory()
+        self.display_trajectory.trajectory_start = self.robot.get_current_state()
+        self.display_trajectory.trajectory.append(plan)
+        
+	    # Publish
+        self.display_trajectory_publisher.publish(self.display_trajectory)
+
+        newPlan = self.group.retime_trajectory(self.robot.get_current_state(), plan, speed)
+
+        self.group.execute(newPlan, wait=not force)
+        
+    
+    def toStartPosition(self):
+        wpose = copy.deepcopy(self.group.get_current_pose().pose)
+        distance = wpose.position.y - 0.4
+        distance = distance*-1
+        self.toWaypointRelative(posY=distance, speed=0.5, force=False)
+        self.toWaypointAbsolute(posX=-0.4, posY=0.4, posZ=0.48, speed=0.5, force=False)
 
     pass
