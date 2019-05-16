@@ -8,14 +8,14 @@ Following these steps will get you a copy of the project up and running on your 
 
 ### Prerequisites
 
-Setting up your environment by installing ROS with a Catkin workspace on Ubuntu 16.04. For further information see [http://wiki.ros.org/kinetic/Installation/Ubuntu](http://wiki.ros.org/kinetic/Installation/Ubuntu).
+Setting up your environment by installing ROS with a Catkin workspace on Ubuntu 16.04. For further information see [http://wiki.ros.org/kinetic/Installation/Ubuntu](ROS kinetic Ubuntu Installation).
+Afterwards install MoveIt!: [https://ros-planning.github.io/moveit_tutorials/doc/getting_started/getting_started.html](MoveIt Getting Started)
  
-This project uses several other ROS packages. Clone them into your workspace with:
+This project uses the pd_ur10 project from MobMonRob. Clone it into your workspace with:
 
 ```
 cd ~/catkin_ws/src
 git clone https://github.com/MobMonRob/pd_ur10.git
-git clone https://github.com/MobMonRob/pd_edgedetection.git
 ```
 
 A pico flexx ToF camera is used to detect the packages. For usage of the camera the royale SDK is needed. See [https://github.com/MobMonRob/pd_edgedetection](https://github.com/MobMonRob/pd_edgedetection) for more information.
@@ -32,16 +32,28 @@ catkin build
 
 ## Usage
 
-The packet cut can be started by launching the launchfile:
+Simply start the project by executing the cut.sh script. It will launch all needed files in seperate xTerm windows. You might have to adjust the IP-Adress from the Robot within the file.
 
 ```
-roslaunch ur_cut cut.launch
+cd ~/catkin_ws/src/PacketCutStudien
+./cut.sh
 ```
 
-## License
+Or launch all files manually. 
+First for controlling the Robot launch the files from [https://github.com/MobMonRob/pd_ur10.git](pd_ur10)
+Then start the Pico Flexx drivers:
 
-This project is licensed under the BSD License - see the [LICENSE.md](LICENSE.md) file for details
+```
+roslaunch ur_cut pico_flexx_driver.launch
+```
+
+And start the cutting with:
+
+```
+rosrun ur_cut mainCut.py
+```
 
 ## Acknowledgments
 
 * This project uses code from ROS tutorial und MoveIt
+* It is also build on the previously mentioned pd_ur10 repository

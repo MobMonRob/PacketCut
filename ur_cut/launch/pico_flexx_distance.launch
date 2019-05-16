@@ -1,3 +1,5 @@
+<!-- Launchfile for getting permanent distances with Distance_search.py -->
+<!-- Not needed in Project, still usefull for debug -->
 <launch>
 
     <!-- Launch Pico Flexx driver -->
