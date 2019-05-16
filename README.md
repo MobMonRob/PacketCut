@@ -8,8 +8,8 @@ Following these steps will get you a copy of the project up and running on your 
 
 ### Prerequisites
 
-Setting up your environment by installing ROS with a Catkin workspace on Ubuntu 16.04. For further information see [http://wiki.ros.org/kinetic/Installation/Ubuntu](ROS kinetic Ubuntu Installation).
-Afterwards install MoveIt!: [https://ros-planning.github.io/moveit_tutorials/doc/getting_started/getting_started.html](MoveIt Getting Started)
+Setting up your environment by installing ROS with a Catkin workspace on Ubuntu 16.04. For further information see [ROS kinetic Ubuntu Installation](http://wiki.ros.org/kinetic/Installation/Ubuntu).
+Afterwards install MoveIt!: [MoveIt Getting Started](https://ros-planning.github.io/moveit_tutorials/doc/getting_started/getting_started.html)
  
 This project uses the pd_ur10 project from MobMonRob. Clone it into your workspace with:
 
@@ -40,7 +40,7 @@ cd ~/catkin_ws/src/PacketCutStudien
 ```
 
 Or launch all files manually. 
-First for controlling the Robot launch the files from [https://github.com/MobMonRob/pd_ur10.git](pd_ur10)
+First for controlling the Robot launch the files from [pd_ur10](https://github.com/MobMonRob/pd_ur10.git)
 Then start the Pico Flexx drivers:
 
 ```
